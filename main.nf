@@ -197,31 +197,36 @@ process get_software_versions {
 }
 
 /* 
- * STEP 1 - Trim and combine short read read-pairs per sample.
+ * STEP 1 - Trim short reads.
  */
-process trim_and_combine {
+process fastp {
     label 'process_medium'
 
     tag "$sample_id"
     publishDir "${params.outdir}/${sample_id}/trimming/", mode: params.publish_dir_mode
 
     input:
-    set sample_id, file(r1), file(r2) from ch_read_files_trimming
+    set sample_id, file(reads) from ch_read_files_trimming
 
     output:
-    set sample_id, file("${sample_id}_trimmed_1.fastq.gz"), file("${sample_id}_trimmed_2.fastq.gz") into (ch_trimmed_for_kraken2, ch_trimmed_for_fastqc)
-    // not keeping logs for multiqc input. for that to be useful we would need to concat first and then run skewer
-    
+    set sample_id, file("*trim.fastq.gz") into (ch_trimmed_for_fastqc, ch_trimmed_for_kraken2)
+    file "*.json" into fastp_for_multiqc
+
     script:
+    
+    if(params.single_end){
+    
     """
-    # loop over readunits in pairs per sample
-    pairno=0
-    echo "${r1} ${r2}" | xargs -n2 | while read fq1 fq2; do
-    skewer --quiet -t ${task.cpus} -m pe -q 3 -n -z \$fq1 \$fq2;
-    done
-    cat \$(ls *trimmed-pair1.fastq.gz | sort) >> ${sample_id}_trimmed_1.fastq.gz
-    cat \$(ls *trimmed-pair2.fastq.gz | sort) >> ${sample_id}_trimmed_2.fastq.gz
+    fastp --in1 ${reads[0]} --out1 "${reads[0].baseName}_trim.fastq.gz" -w ${task.cpus} --json "${reads[0].baseName}"_fastp.json
     """
+    
+    } else {
+    
+    """
+    fastp --in1 ${reads[0]} --in2 ${reads[1]} --out1 "${reads[0].baseName}_trim.fastq.gz" --out2 "${reads[1].baseName}_trim.fastq.gz" -w ${task.cpus} --json "${reads[0].baseName}"_fastp.json
+    """
+    
+    }
 }
 
 
@@ -231,17 +236,17 @@ process trim_and_combine {
 process fastqc {
     label 'process_medium'
     tag "$sample_id"
-    publishDir "${params.outdir}/${sample_id}/FastQC", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/${sample_id}/fastqc", mode: params.publish_dir_mode
 
     input:
-    set sample_id, file(fq1), file(fq2) from ch_trimmed_for_fastqc
+    set sample_id, file(reads) from ch_trimmed_for_fastqc
 
     output:
     file "*_fastqc.{zip,html}" into ch_fastqc_results
 
     script:
     """
-    fastqc -t ${task.cpus} -q ${fq1} ${fq2}
+    fastqc -t ${task.cpus} -q $reads
     """
 }
 
@@ -256,6 +261,7 @@ process multiqc {
     file (mqc_custom_config) from ch_multiqc_custom_config.collect().ifEmpty([])
     // TODO avantonder: Add in log files from your new processes for MultiQC to find!
     file ('fastqc/*') from ch_fastqc_results.collect().ifEmpty([])
+    file ('trimming/*') from fastp_for_multiqc.collect().ifEmpty([])
     file ('software_versions/*') from ch_software_versions_yaml.collect()
     file workflow_summary from ch_workflow_summary.collectFile(name: "workflow_summary_mqc.yaml")
 
@@ -280,10 +286,10 @@ process multiqc {
 process kraken2 {
     label 'process_medium'
     tag "$sample_id"
-    publishDir "${params.outdir}/${sample_id}/kraken", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/${sample_id}/kraken2", mode: params.publish_dir_mode
 
     input:
-    set sample_id, file(fq1), file(fq2) from ch_trimmed_for_kraken2
+    set sample_id, file(reads) from ch_trimmed_for_kraken2
 
     output:
     file("${sample_id}_kraken2.report") into (ch_kraken_for_bracken, ch_for_parse_kraken)
@@ -293,7 +299,7 @@ process kraken2 {
     # stdout reports per read which is not needed. kraken.report can be used with bracken
     
     kraken2 --threads ${task.cpus} --paired --db ${kraken2db} \
-        --report ${sample_id}_kraken2.report ${fq1} ${fq2} | gzip > kraken2.out.gz
+        --report ${sample_id}_kraken2.report ${reads[0]} ${reads[1]} | gzip > kraken2.out.gz
     """
 }
 

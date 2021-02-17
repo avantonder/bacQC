@@ -16,5 +16,5 @@ dependencies:
   #Add required software dependencies here
   - fastqc=0.11.9
   - multiqc=1.9
-  - skewer=0.2.2
+  - fastp=0.20.1
   - kraken2=2.0.9beta
