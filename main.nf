@@ -296,7 +296,7 @@ process bracken {
     publishDir "${params.outdir}/${sample_id}/bracken", mode: params.publish_dir_mode
 
     input:
-    set sample_id, file(kraken2report
+    set sample_id, file(kraken2report) from ch_kraken_for_bracken
 
     output:
     file("${sample_id}_output_species_abundance.txt") into ch_for_parse_bracken
