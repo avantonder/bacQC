@@ -3,14 +3,14 @@
 ========================================================================================
                          avantonder/bacqc
 ========================================================================================
- avantonder/bacqc Analysis Pipeline.
+ avantonder/bacQC Analysis Pipeline.
  #### Homepage / Documentation
- https://github.com/avantonder/bacqc
+ https://github.com/avantonder/bacQC
 ----------------------------------------------------------------------------------------
 */
 
 def helpMessage() {
-    // TODO avantonder: Add to this help message with new command line parameters
+    
     log.info nfcoreHeader()
     log.info"""
 
@@ -28,7 +28,6 @@ def helpMessage() {
     Pipeline arguments:
       --kraken2db                     Path to Kraken2 Database directory
       --brackendb                     Path to Bracken Database directory
-      --threshold                     Minimum percentage of reads assigned to a species to be reported (default = 5)
       --single_end                     Specifies that the input is single end reads
 
     Other options:
