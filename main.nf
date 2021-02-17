@@ -229,22 +229,19 @@ process trim_and_combine {
  * STEP 2 - FastQC
  */
 process fastqc {
-    tag "$name"
     label 'process_medium'
-    publishDir "${params.outdir}/fastqc", mode: params.publish_dir_mode,
-        saveAs: { filename ->
-                      filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
-                }
+    tag "$sample_id"
+    publishDir "${params.outdir}/${sample_id}/FastQC", mode: params.publish_dir_mode
 
     input:
-    set val(name), file(reads) from ch_trimmed_for_fastqc
+    set sample_id, file(fq1), file(fq2) from ch_trimmed_for_fastqc
 
     output:
     file "*_fastqc.{zip,html}" into ch_fastqc_results
 
     script:
     """
-    fastqc --quiet --threads $task.cpus $reads
+    fastqc -t ${task.cpus} -q ${fq1} ${fq2}
     """
 }
 
