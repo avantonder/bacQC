@@ -74,10 +74,10 @@ if (workflow.profile.contains('awsbatch')) {
 }
 
 // Stage config files
-ch_multiqc_config = file("$projectDir/assets/multiqc_config.yaml", checkIfExists: true)
+ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: true)
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
-ch_output_docs = file("$projectDir/docs/output.md", checkIfExists: true)
-ch_output_docs_images = file("$projectDir/docs/images/", checkIfExists: true)
+ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
+ch_output_docs_images = file("$baseDir/docs/images/", checkIfExists: true)
 
 /*
  * Create a channel for input read files
