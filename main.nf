@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 /*
 ========================================================================================
-                         avantonder/bacqc
+                         avantonder/bacQC
 ========================================================================================
  avantonder/bacQC Analysis Pipeline.
  #### Homepage / Documentation
@@ -18,7 +18,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run avantonder/bacqc --input '*_R{1,2}.fastq.gz' -profile docker
+    nextflow run avantonder/bacQC --input '*_R{1,2}.fastq.gz' -profile docker
 
     Mandatory arguments:
       --input [file]                  Path to input data (must be surrounded with quotes)
@@ -170,12 +170,15 @@ process get_software_versions {
     file "software_versions.csv"
 
     script:
-    // TODO avantonder: Get all tools to print their version number here
     """
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
-    fastqc --version > v_fastqc.txt
-    multiqc --version > v_multiqc.txt
+    
+    skewer --version | sed -e "s/skewer version://g" | sed -e 's/\\s//g' | head -n 1  > skewer.version.txt
+    fastqc --version > fastqc.version.txt
+    multiqc --version > multiqc.version.txt
+    kraken2 --version | sed -e "s/Kraken version //g" | head -n 1 > kraken2.version.txt
+    echo "bracken v1.0" > bracken.version.txt
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
@@ -193,7 +196,7 @@ process trim_and_combine {
     set sample_id, file(r1), file(r2) from ch_read_files_trimming
 
     output:
-    set sample_id, file("${sample_id}_trm-cmb.R1.fastq.gz"), file("${sample_id}_trm-cmb.R2.fastq.gz") into (ch_trimmed_for_kraken2, ch_trimmed_for_fastqc)
+    set sample_id, file("${sample_id}_trimmed_1.fastq.gz"), file("${sample_id}_trimmed_2.fastq.gz") into (ch_trimmed_for_kraken2, ch_trimmed_for_fastqc)
     // not keeping logs for multiqc input. for that to be useful we would need to concat first and then run skewer
     
     script:
@@ -203,8 +206,8 @@ process trim_and_combine {
     echo "${r1} ${r2}" | xargs -n2 | while read fq1 fq2; do
     skewer --quiet -t ${task.cpus} -m pe -q 3 -n -z \$fq1 \$fq2;
     done
-    cat \$(ls *trimmed-pair1.fastq.gz | sort) >> ${sample_id}_trm-cmb.R1.fastq.gz
-    cat \$(ls *trimmed-pair2.fastq.gz | sort) >> ${sample_id}_trm-cmb.R2.fastq.gz
+    cat \$(ls *trimmed-pair1.fastq.gz | sort) >> ${sample_id}_trimmed_1.fastq.gz
+    cat \$(ls *trimmed-pair2.fastq.gz | sort) >> ${sample_id}_trimmed_2.fastq.gz
     """
 }
 
@@ -273,7 +276,7 @@ process kraken2 {
     set sample_id, file(fq1), file(fq2) from ch_trimmed_for_kraken2
 
     output:
-    file("${sample_id}_kraken2.report") into ch_kraken_for_bracken
+    file("${sample_id}_kraken2.report") into (ch_kraken_for_bracken, ch_for_parse_kraken)
 
     script:
     """
@@ -293,19 +296,14 @@ process bracken {
     publishDir "${params.outdir}/${sample_id}/bracken", mode: params.publish_dir_mode
 
     input:
-    set sample_id, file(fq1), file(fq2) from ch_kraken_for_bracken
+    set sample_id, file(kraken2.report)
 
     output:
-    file("${sample_id}_kraken2.report")
-
-    when: !params.skip_kraken2
+    file("${sample_id}_output_species_abundance.txt") into ch_for_parse_bracken
 
     script:
     """
-    # stdout reports per read which is not needed. kraken.report can be used with bracken
-    
-    kraken2 --threads ${task.cpus} --paired --db ${kraken2db} \
-        --report ${sample_id}_kraken2.report ${fq1} ${fq2} | gzip > kraken2.out.gz
+    est_abundance.py -i ${kraken2.report} -k ${brackendb} -l S -t 10 -o ${sample_id}_output_species_abundance.txt
     """
 }
 
@@ -315,22 +313,20 @@ process bracken {
 process parse_kraken {
     label 'process_small'
     tag "$sample_id"
-    publishDir "${params.outdir}/${sample_id}/bracken", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/${sample_id}/sample_composition", mode: params.publish_dir_mode
 
     input:
-    set sample_id, file(fq1), file(fq2) from ch_kraken_for_bracken
+    
+    file (kraken2.report) from ch_for_parse_kraken.collect()
+    file (output_species_abundance) from ch_for_parse_bracken.collect()
 
     output:
-    file("${sample_id}_kraken2.report")
-
-    when: !params.skip_kraken2
+    file "Bracken_species_composition.tsv"
+    file "Bracken_species_composition.png"
 
     script:
     """
-    # stdout reports per read which is not needed. kraken.report can be used with bracken
-    
-    kraken2 --threads ${task.cpus} --paired --db ${kraken2db} \
-        --report ${sample_id}_kraken2.report ${fq1} ${fq2} | gzip > kraken2.out.gz
+    kraken_parser.py 
     """
 }
 
@@ -359,9 +355,9 @@ process output_documentation {
 workflow.onComplete {
 
     // Set up the e-mail variables
-    def subject = "[avantonder/bacqc] Successful: $workflow.runName"
+    def subject = "[avantonder/bacQC] Successful: $workflow.runName"
     if (!workflow.success) {
-        subject = "[avantonder/bacqc] FAILED: $workflow.runName"
+        subject = "[avantonder/bacQC] FAILED: $workflow.runName"
     }
     def email_fields = [:]
     email_fields['version'] = workflow.manifest.version
@@ -393,12 +389,12 @@ workflow.onComplete {
         if (workflow.success) {
             mqc_report = ch_multiqc_report.getVal()
             if (mqc_report.getClass() == ArrayList) {
-                log.warn "[avantonder/bacqc] Found multiple reports from process 'multiqc', will use only one"
+                log.warn "[avantonder/bacQC] Found multiple reports from process 'multiqc', will use only one"
                 mqc_report = mqc_report[0]
             }
         }
     } catch (all) {
-        log.warn "[avantonder/bacqc] Could not attach MultiQC report to summary email"
+        log.warn "[avantonder/bacQC] Could not attach MultiQC report to summary email"
     }
 
     // Check if we are only sending emails on failure
@@ -430,7 +426,7 @@ workflow.onComplete {
             if (params.plaintext_email) { throw GroovyException('Send plaintext e-mail, not HTML') }
             // Try to send HTML e-mail using sendmail
             [ 'sendmail', '-t' ].execute() << sendmail_html
-            log.info "[avantonder/bacqc] Sent summary e-mail to $email_address (sendmail)"
+            log.info "[avantonder/bacQC] Sent summary e-mail to $email_address (sendmail)"
         } catch (all) {
             // Catch failures and try with plaintext
             def mail_cmd = [ 'mail', '-s', subject, '--content-type=text/html', email_address ]
@@ -438,7 +434,7 @@ workflow.onComplete {
               mail_cmd += [ '-A', mqc_report ]
             }
             mail_cmd.execute() << email_html
-            log.info "[avantonder/bacqc] Sent summary e-mail to $email_address (mail)"
+            log.info "[avantonder/bacQC] Sent summary e-mail to $email_address (mail)"
         }
     }
 
@@ -464,10 +460,10 @@ workflow.onComplete {
     }
 
     if (workflow.success) {
-        log.info "-${c_purple}[avantonder/bacqc]${c_green} Pipeline completed successfully${c_reset}-"
+        log.info "-${c_purple}[avantonder/bacqQC]${c_green} Pipeline completed successfully${c_reset}-"
     } else {
         checkHostname()
-        log.info "-${c_purple}[avantonder/bacqc]${c_red} Pipeline completed with errors${c_reset}-"
+        log.info "-${c_purple}[avantonder/bacQC]${c_red} Pipeline completed with errors${c_reset}-"
     }
 
 }
@@ -491,7 +487,7 @@ def nfcoreHeader() {
     ${c_blue}  |\\ | |__  __ /  ` /  \\ |__) |__         ${c_yellow}}  {${c_reset}
     ${c_blue}  | \\| |       \\__, \\__/ |  \\ |___     ${c_green}\\`-._,-`-,${c_reset}
                                             ${c_green}`._,._,\'${c_reset}
-    ${c_purple}  avantonder/bacqc v${workflow.manifest.version}${c_reset}
+    ${c_purple}  avantonder/bacQC v${workflow.manifest.version}${c_reset}
     -${c_dim}--------------------------------------------------${c_reset}-
     """.stripIndent()
 }
