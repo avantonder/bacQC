@@ -290,22 +290,22 @@ process kraken2 {
 /* 
  * STEP 5 - bracken - further classify kraken2 results
  */
-//process bracken {
-  //  label 'process_small'
-    //tag "$sample_id"
-    //publishDir "${params.outdir}/${sample_id}/bracken", mode: params.publish_dir_mode
+process bracken {
+    label 'process_small'
+    tag "$sample_id"
+    publishDir "${params.outdir}/${sample_id}/bracken", mode: params.publish_dir_mode
 
-    //input:
-    //set sample_id, file(kraken2report)
+    input:
+    set sample_id, file(kraken2report
 
-    //output:
-   // file("${sample_id}_output_species_abundance.txt") into ch_for_parse_bracken
+    output:
+    file("${sample_id}_output_species_abundance.txt") into ch_for_parse_bracken
 
-   // script:
-  //  """
-  //  est_abundance.py -i ${kraken2report} -k ${brackendb} -l S -t 10 -o ${sample_id}_output_species_abundance.txt
-  //  """
-//}
+    script:
+    """
+    est_abundance.py -i ${kraken2report} -k ${brackendb} -l S -t 10 -o ${sample_id}_output_species_abundance.txt
+    """
+}
 
 /* 
  * STEP 6 - parse kraken2 and bracken results
