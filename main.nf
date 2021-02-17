@@ -108,7 +108,8 @@ log.info nfcoreHeader()
 def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = custom_runName ?: workflow.runName
-// TODO avantonder: Report custom parameters here
+if (params.kraken2db) summary['Kraken2 DB'] = params.kraken2db
+if (params.brackendb) summary['Bracken DB'] = params.brackendb
 summary['Input']            = params.input
 summary['Data Type']        = params.single_end ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
