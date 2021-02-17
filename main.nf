@@ -18,7 +18,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run avantonder/bacQC --input '*_R{1,2}.fastq.gz' -profile docker
+    nextflow run avantonder/bacQC --input '*_R{1,2}.fastq.gz' --kraken2db 'path-to-kraken2db' --brackendb 'path-to-brackendb' -profile docker
 
     Mandatory arguments:
       --input [file]                  Path to input data (must be surrounded with quotes)
@@ -27,8 +27,8 @@ def helpMessage() {
 
     Pipeline arguments:
       --kraken2db                     Path to Kraken2 Database directory
-      --brackendb                     Path to Bracken Database directory
-      --single_end                     Specifies that the input is single end reads
+      --brackendb                     Path to Bracken Database
+      --single_end                    Specifies that the input is single end reads
 
     Other options:
       --outdir [file]                 The output directory where the results will be saved
@@ -49,6 +49,18 @@ def helpMessage() {
 if (params.help) {
     helpMessage()
     exit 0
+}
+
+if(params.kraken2db){
+      kraken2db = file(params.kraken2db)
+    } else {
+      exit 1, "Missing Kraken2 DB arg"
+}
+
+if(params.brackendb){
+      brackendb = file(params.brackendb)
+    } else {
+      exit 1, "Missing Bracken DB arg"
 }
 
 /*
@@ -108,8 +120,8 @@ log.info nfcoreHeader()
 def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = custom_runName ?: workflow.runName
-if (params.kraken2db) summary['Kraken2 DB'] = params.kraken2db
-if (params.brackendb) summary['Bracken DB'] = params.brackendb
+summary['Kraken2 DB']       = params.kraken2db
+summary['Bracken DB']       = params.brackendb
 summary['Input']            = params.input
 summary['Data Type']        = params.single_end ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
