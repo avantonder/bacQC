@@ -182,7 +182,7 @@ process get_software_versions {
 }
 
 /* 
- * STEP 1 - Trim and combine short read read-pairs per sample. Similar to avantonder vipr
+ * STEP 1 - Trim and combine short read read-pairs per sample.
  */
 process trim_and_combine {
     label 'process_medium'
