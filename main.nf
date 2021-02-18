@@ -202,7 +202,7 @@ process get_software_versions {
 process fastp {
     label 'process_medium'
     tag "$sample_id"
-    publishDir "${params.outdir}/${sample_id}/trimming/", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/trimming/", mode: params.publish_dir_mode
 
     input:
     set sample_id, file(reads) from ch_read_files_trimming
@@ -235,7 +235,7 @@ process fastp {
 process fastqc {
     label 'process_medium'
     tag "$sample_id"
-    publishDir "${params.outdir}/${sample_id}/fastqc", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/fastqc", mode: params.publish_dir_mode
 
     input:
     set sample_id, file(reads) from ch_trimmed_for_fastqc
@@ -285,7 +285,7 @@ process multiqc {
 process kraken2 {
     label 'process_medium'
     tag "$sample_id"
-    publishDir "${params.outdir}/${sample_id}/kraken2", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/kraken2", mode: params.publish_dir_mode
 
     input:
     set sample_id, file(reads) from ch_trimmed_for_kraken2
@@ -308,7 +308,7 @@ process kraken2 {
 process bracken {
     label 'process_small'
     tag "$sample_id"
-    publishDir "${params.outdir}/${sample_id}/bracken", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/bracken", mode: params.publish_dir_mode
 
     input:
     
@@ -332,7 +332,7 @@ process bracken {
 process parse_kraken {
     label 'process_small'
     tag "$sample_id"
-    publishDir "${params.outdir}/${sample_id}/sample_composition", mode: params.publish_dir_mode
+    publishDir "${params.outdir}/sample_composition", mode: params.publish_dir_mode
 
     input:
     
