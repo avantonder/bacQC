@@ -340,10 +340,8 @@ process parse_kraken {
     file (output_species_abundance) from ch_for_parse_bracken.collect()
 
     output:
-    file "kraken_unclassified.txt"
     file "Bracken_species_composition.tsv"
-    file "Bracken_species_composition.png"
-
+    
     script:
     """
     kraken_parser.py 
