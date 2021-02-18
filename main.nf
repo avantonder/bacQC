@@ -311,14 +311,18 @@ process bracken {
     publishDir "${params.outdir}/${sample_id}/bracken", mode: params.publish_dir_mode
 
     input:
-    set sample_id, file(kraken2report) from ch_kraken_for_bracken
+    
+    file (kraken2report) from ch_kraken_for_bracken
 
     output:
-    file("${sample_id}_output_species_abundance.txt") into ch_for_parse_bracken
+    file "*_output_species_abundance.txt" into ch_for_parse_bracken
 
     script:
+    prefix = "$kraken2report" - ~/(\_kraken2.report)?$/
+
+
     """
-    est_abundance.py -i ${kraken2report} -k ${brackendb} -l S -t 10 -o ${sample_id}_output_species_abundance.txt
+    est_abundance.py -i ${kraken2report} -k ${brackendb} -l S -t 10 -o ${prefix}_output_species_abundance.txt 
     """
 }
 
