@@ -322,7 +322,7 @@ process bracken {
 
 
     """
-    python est_abundance.py -i ${kraken2report} -k ${brackendb} -l S -t 10 -o ${prefix}_output_species_abundance.txt 
+    est_abundance.py -i ${kraken2report} -k ${brackendb} -l S -t 10 -o ${prefix}_output_species_abundance.txt 
     """
 }
 
@@ -345,7 +345,7 @@ process parse_kraken {
 
     script:
     """
-    python kraken_parser.py 
+    kraken_parser.py 
     """
 }
 
