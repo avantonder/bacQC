@@ -216,13 +216,13 @@ process fastp {
     if(params.single_end){
     
     """
-    fastp --in1 ${reads[0]} --out1 "${reads[0].baseName}_trim.fastq.gz" -w ${task.cpus} --json "${reads[0].baseName}"_fastp.json
+    fastp --in1 ${reads[0]} --out1 ${sample_id}_trim.fastq.gz -w ${task.cpus} --json ${sample_id}_fastp.json
     """
     
     } else {
     
     """
-    fastp --in1 ${reads[0]} --in2 ${reads[1]} --out1 "${sample_id}_trim_1.fastq.gz" --out2 "${sample_id}_trim_2.fastq.gz" -w ${task.cpus} --json "${sample_id}"_fastp.json
+    fastp --in1 ${reads[0]} --in2 ${reads[1]} --out1 ${sample_id}_trim_1.fastq.gz --out2 ${sample_id}_trim_2.fastq.gz -w ${task.cpus} --json ${sample_id}_fastp.json
     """
     
     }
