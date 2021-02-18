@@ -7,7 +7,7 @@
 ## Introduction
 
 <!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
-**bacQC** is a bioinformatics best-practise analysis pipeline for trimming Illumina reads with skewer, assessing read quality with fastQC
+**bacQC** is a bioinformatics analysis pipeline for trimming Illumina reads with fastp, assessing read quality with fastQC
 and species composition with Kraken2 and Bracken.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
@@ -38,7 +38,7 @@ By default, the pipeline currently performs the following:
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of default steps of pipeline -->
 
-* Read and adapter trimming (`Skewer`)
+* Read and adapter trimming (`fastp`)
 * Sequencing quality control (`FastQC`)
 * Overall pipeline run summaries (`MultiQC`)
 * Read assignment (`Kraken 2`)
