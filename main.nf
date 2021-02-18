@@ -201,7 +201,6 @@ process get_software_versions {
  */
 process fastp {
     label 'process_medium'
-
     tag "$sample_id"
     publishDir "${params.outdir}/${sample_id}/trimming/", mode: params.publish_dir_mode
 
