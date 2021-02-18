@@ -222,7 +222,7 @@ process fastp {
     } else {
     
     """
-    fastp --in1 ${reads[0]} --in2 ${reads[1]} --out1 ${sample_id}_trim_1.fastq.gz --out2 ${sample_id}_trim_2.fastq.gz -w ${task.cpus} --json ${sample_id}_fastp.json
+    fastp --in1 ${reads[0]} --in2 ${reads[1]} --out1 ${sample_id}_1_trim.fastq.gz --out2 ${sample_id}_2_trim.fastq.gz -w ${task.cpus} --json ${sample_id}_fastp.json
     """
     
     }
