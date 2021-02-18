@@ -187,7 +187,7 @@ process get_software_versions {
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
     
-    skewer --version | sed -e "s/skewer version://g" | sed -e 's/\\s//g' | head -n 1  > skewer.version.txt
+    fastp --version &> v_fastp.txt 2>&1 || true
     fastqc --version > fastqc.version.txt
     multiqc --version > multiqc.version.txt
     kraken2 --version | sed -e "s/Kraken version //g" | head -n 1 > kraken2.version.txt
