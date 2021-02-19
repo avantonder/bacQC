@@ -312,7 +312,7 @@ process bracken {
 
     input:
     
-    file (kraken2report) from ch_kraken_for_bracken
+    set sample_id, file(kraken2report) from ch_kraken_for_bracken
 
     output:
     file "*_output_species_abundance.txt" into ch_for_parse_bracken
