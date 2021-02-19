@@ -18,18 +18,25 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
 2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) or [`Podman`](https://podman.io/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
 
-3. Download the pipeline and test it on a minimal dataset with a single command:
+3. Download the kraken2 database files:
+	
+	```
+	wget ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/old/minikraken2_v1_8GB_201904.tgz
+	tar xvfz minikraken2_v1_8GB_201904.tgz
+	``` 
+
+4. Download the pipeline and test it on a minimal dataset with a single command:
 
     ```bash
-    nextflow run avantonder/bacQC -profile test,<docker/singularity/podman/conda/institute>
+    nextflow run avantonder/bacQC -profile test,<docker/singularity/podman/conda/institute> --kraken2db minikraken2_v1_8GB ----brackendb minikraken2_v1_8GB/database100mers.kmer_distrib
     ```
 
-4. Start running your own analysis!
+5. Start running your own analysis!
 
     <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
     ```bash
-    nextflow run avantonder/bacQC -profile <docker/singularity/podman/conda/institute> --input '*_R{1,2}.fastq.gz' --kraken2db <path to kraken2 db> ----brackendb <path to bracken db>
+    nextflow run avantonder/bacQC -profile <docker/singularity/podman/conda/institute> --input '*_R{1,2}.fastq.gz' --kraken2db minikraken2_v1_8GB ----brackendb minikraken2_v1_8GB/database100mers.kmer_distrib
     ```
 
 ## Pipeline Summary
