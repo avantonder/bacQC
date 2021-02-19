@@ -36,7 +36,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
     <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
     ```bash
-    nextflow run avantonder/bacQC -profile <docker/singularity/podman/conda/institute> --input '*_R{1,2}.fastq.gz' --kraken2db minikraken2_v1_8GB ----brackendb minikraken2_v1_8GB/database100mers.kmer_distrib
+    nextflow run avantonder/bacQC -profile <docker/singularity/podman/conda/institute> --input '*_{1,2}.fastq.gz' --kraken2db minikraken2_v1_8GB --brackendb minikraken2_v1_8GB/database100mers.kmer_distrib
     ```
 
 ## Pipeline Summary
