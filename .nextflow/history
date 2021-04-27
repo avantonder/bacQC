@@ -1,1 +1,0 @@
-2021-04-27 16:04:40	-	stupefied_jennings	-	1f7241863ab0d6555c2326a7042da681d2483934	8ffc29a0-a2d5-4023-b818-13f46d0eee65	nextflow run avantonder/bacQC -r dsl2 -profile conda,test
