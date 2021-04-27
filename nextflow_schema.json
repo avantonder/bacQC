@@ -16,9 +16,9 @@
             "properties": {
                 "input": {
                     "type": "string",
-                    "fa_icon": "fas fa-dna",
-                    "description": "Input FastQ files.",
-                    "help_text": "Use this to specify the location of your input FastQ files. For example:\n\n```bash\n--input 'path/to/data/sample_*_{1,2}.fastq'\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The path must have at least one `*` wildcard character\n3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.\n\nIf left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`"
+                    "fa_icon": "fas fa-file",
+                    "description": "Path to a sample sheet describing paths to input fastq files",
+                    "help_text": "Use this to specify the location of your input FastQ files."
                 },
                 "outdir": {
                     "type": "string",
@@ -35,13 +35,29 @@
                 }
             }
         },
-        "reference_genome_options": {
-            "title": "Reference genome options",
+        "compulsory_parameters": {
+            "title": "Compulsory parameters",
             "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Options for the reference genome indices used to align reads.",
-            "properties": []
-        },
+            "description": "",
+            "default": "",
+            "fa_icon": "fas fa-exclamation-circle",
+            "properties": {
+                "kraken2db": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file",
+                    "description": "Path to a kraken2 database"
+                },
+                "brackendb": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file",
+                    "description": "Path to a bracken database"
+                }
+            },
+            "required": [
+                "kraken2db",
+                "brackendb"
+            ]
+        },      
         "generic_options": {
             "title": "Generic options",
             "type": "object",
