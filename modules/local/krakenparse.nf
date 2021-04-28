@@ -10,7 +10,7 @@ process KRAKENPARSE {
         mode: params.publish_dir_mode,
         saveAs: { filename -> saveFiles(filename:filename, options:params.options, publish_dir:getSoftwareName(task.process), publish_id:'') }
 
-    conda (params.enable_conda ? "conda-forge::mulled-v2-344874846f44224e5f0b7b741eacdddffe895d1e" : null)
+    conda (params.enable_conda ? "bioconda::mulled-v2-344874846f44224e5f0b7b741eacdddffe895d1e=1c62d2bdb53ec7327655a589a6fe7792a36e3ac6-0" : null)
     if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker_container) {
         container "https://depot.galaxyproject.org/singularity/mulled-v2-344874846f44224e5f0b7b741eacdddffe895d1e:1c62d2bdb53ec7327655a589a6fe7792a36e3ac6-0"
     } else {
