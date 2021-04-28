@@ -161,6 +161,9 @@ workflow {
     * MODULE: Run MultiQC
     */
 
+    workflow_summary    = Workflow.paramsSummaryMultiqc(workflow, params.summary_params)
+    ch_workflow_summary = Channel.value(workflow_summary)
+    
     MULTIQC (
             ch_multiqc_config,
             ch_multiqc_custom_config.collect().ifEmpty([]),
