@@ -22,7 +22,7 @@ process BRACKEN {
     tuple val(meta), path('*_output_species_abundance.txt'), emit: brackenreport
     path "*.version.txt",                                    emit: version
     
-    script: // This script is bundled with the pipeline, in avantonder/bacQC/bin/
+    script: // This script is bundled with the pipeline in avantonder/bacQC/bin/
     def software = getSoftwareName(task.process)
     def prefix   = options.suffix ? "${meta.id}${options.suffix}" : "${meta.id}"
     """
