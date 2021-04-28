@@ -123,7 +123,6 @@ workflow {
             ch_reads,
             ch_kraken2db
         )
-        ch_kraken2_multiqc       = KRAKEN2_RUN.out.txt
         ch_kraken2_bracken       = KRAKEN2_RUN.out.txt
         ch_kraken2_krakenparse   = KRAKEN2_RUN.out.txt
         ch_software_versions     = ch_software_versions.mix(KRAKEN2_RUN.out.version.first().ifEmpty(null))
@@ -166,8 +165,7 @@ workflow {
             ch_multiqc_custom_config.collect().ifEmpty([]),
             GET_SOFTWARE_VERSIONS.out.yaml.collect(),
             FASTQC_FASTP.out.fastqc_raw_zip.collect{it[1]}.ifEmpty([]),
-            FASTQC_FASTP.out.trim_json.collect{it[1]}.ifEmpty([]),
-            ch_kraken2_multiqc.collect{it[1]}.ifEmpty([]) 
+            FASTQC_FASTP.out.trim_json.collect{it[1]}.ifEmpty([]) 
         )
         multiqc_report = MULTIQC.out.report.toList()   
 }
