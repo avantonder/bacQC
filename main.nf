@@ -123,10 +123,10 @@ workflow {
             ch_variants_fastq
             ch_kraken2db
         )
-        ch_kraken2_multiqc   = KRAKEN2_RUN.out.txt
-        ch_kraken2_bracken   = KRAKEN2_RUN.out.txt
+        ch_kraken2_multiqc       = KRAKEN2_RUN.out.txt
+        ch_kraken2_bracken       = KRAKEN2_RUN.out.txt
         ch_kraken2_krakenparse   = KRAKEN2_RUN.out.txt
-        ch_software_versions = ch_software_versions.mix(KRAKEN2_RUN.out.version.first().ifEmpty(null))
+        ch_software_versions     = ch_software_versions.mix(KRAKEN2_RUN.out.version.first().ifEmpty(null))
 
     /*
     * MODULE: Run bracken
