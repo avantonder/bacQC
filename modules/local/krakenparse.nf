@@ -9,8 +9,6 @@ process KRAKENPARSE {
     publishDir "${params.outdir}",
         mode: params.publish_dir_mode,
         saveAs: { filename -> saveFiles(filename:filename, options:params.options, publish_dir:getSoftwareName(task.process), publish_id:'') }
-
-    conda-forge::
     
     conda (params.enable_conda ? 'conda-forge::numpy=1.17 conda-forge::pandas=0.25' : null)
     if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker_container) {
