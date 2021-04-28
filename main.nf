@@ -85,7 +85,7 @@ include { MULTIQC } from './modules/nf-core/software/multiqc/main'              
 def fastp_options   = modules['fastp']
 
 include { INPUT_CHECK       } from './modules/local/subworkflow/input_check'        addParams( options: [:] )
-include { FASTQC_FASTP      } from '../subworkflows/nf-core/fastqc_fastp'           addParams( fastqc_raw_options: modules['fastqc_raw'], fastqc_trim_options: modules['fastqc_trim'], fastp_options: fastp_options )
+include { FASTQC_FASTP      } from './subworkflows/nf-core/fastqc_fastp'            addParams( fastqc_raw_options: modules['fastqc_raw'], fastqc_trim_options: modules['fastqc_trim'], fastp_options: fastp_options )
 
 ////////////////////////////////////////////////////
 /* --           RUN MAIN WORKFLOW              -- */
