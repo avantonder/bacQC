@@ -109,9 +109,9 @@ workflow {
      * SUBWORKFLOW: Read QC and trim adapters
      */
     FASTQC_FASTP (
-        ch_reads
+        INPUT_CHECK.out.sample_info
     )
-    ch_variants_fastq    = FASTQC_FASTP.out.reads
+    ch_reads    = FASTQC_FASTP.out.reads
     ch_software_versions = ch_software_versions.mix(FASTQC_FASTP.out.fastqc_version.first().ifEmpty(null))
     ch_software_versions = ch_software_versions.mix(FASTQC_FASTP.out.fastp_version.first().ifEmpty(null))
 
@@ -120,7 +120,7 @@ workflow {
     */
     ch_kraken2_multiqc = Channel.empty()
     KRAKEN2_RUN (
-            ch_variants_fastq
+            ch_reads
             ch_kraken2db
         )
         ch_kraken2_multiqc       = KRAKEN2_RUN.out.txt
