@@ -160,15 +160,11 @@ workflow {
     /*
     * MODULE: Run MultiQC
     */
-
-    workflow_summary    = Workflow.paramsSummaryMultiqc(workflow, params.summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
     
     MULTIQC (
             ch_multiqc_config,
             ch_multiqc_custom_config.collect().ifEmpty([]),
             GET_SOFTWARE_VERSIONS.out.yaml.collect(),
-            ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'),
             FASTQC_FASTP.out.fastqc_raw_zip.collect{it[1]}.ifEmpty([]),
             FASTQC_FASTP.out.trim_json.collect{it[1]}.ifEmpty([]),
             ch_kraken2_multiqc.collect{it[1]}.ifEmpty([]) 
