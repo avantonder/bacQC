@@ -167,6 +167,7 @@ workflow {
     /*
      * MODULE: Pipeline reporting
      */
+    
     GET_SOFTWARE_VERSIONS ( 
         ch_software_versions.map { it }.collect()
     )    

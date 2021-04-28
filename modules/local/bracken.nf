@@ -28,7 +28,7 @@ process BRACKEN {
     """
     est_abundance.py \\
         -i ${prefix}.kraken2.report.txt \\
-        -k ${brackendb} \\
+        -k $brackendb \\
         $options.args \\
         -o ${prefix}_output_species_abundance.txt
   
