@@ -150,6 +150,14 @@ workflow {
         ch_software_versions = ch_software_versions.mix(KRAKENPARSE.out.version.first().ifEmpty(null))
     
     /*
+     * MODULE: Pipeline reporting
+     */
+    
+    GET_SOFTWARE_VERSIONS ( 
+        ch_software_versions.map { it }.collect()
+    ) 
+    
+    /*
     * MODULE: Run MultiQC
     */
 
@@ -162,15 +170,7 @@ workflow {
             FASTQC_FASTP.out.trim_json.collect{it[1]}.ifEmpty([]),
             ch_kraken2_multiqc.collect{it[1]}.ifEmpty([]) 
         )
-        multiqc_report = MULTIQC.out.report.toList()
-    
-    /*
-     * MODULE: Pipeline reporting
-     */
-    
-    GET_SOFTWARE_VERSIONS ( 
-        ch_software_versions.map { it }.collect()
-    )    
+        multiqc_report = MULTIQC.out.report.toList()   
 }
 
 ////////////////////////////////////////////////////
