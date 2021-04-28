@@ -120,7 +120,7 @@ workflow {
     */
     ch_kraken2_multiqc = Channel.empty()
     KRAKEN2_RUN (
-            ch_reads
+            ch_reads,
             ch_kraken2db
         )
         ch_kraken2_multiqc       = KRAKEN2_RUN.out.txt
@@ -133,7 +133,7 @@ workflow {
     */
 
     BRACKEN (
-            ch_kraken2_bracken
+            ch_kraken2_bracken,
             ch_brackendb
         )
         ch_bracken           = BRACKEN.out.brackenreport
@@ -144,7 +144,7 @@ workflow {
     */
 
     KRAKENPARSE (
-            ch_kraken2_krakenparse
+            ch_kraken2_krakenparse,
             ch_bracken
         )
         ch_software_versions = ch_software_versions.mix(KRAKENPARSE.out.version.first().ifEmpty(null))
