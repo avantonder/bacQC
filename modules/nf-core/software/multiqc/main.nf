@@ -18,7 +18,12 @@ process MULTIQC {
     }
 
     input:
-    path multiqc_files
+    path 'multiqc_config.yaml'
+    path multiqc_custom_config
+    path software_versions
+    path ('fastqc/*')
+    path ('fastp/*')
+
 
     output:
     path "*multiqc_report.html", emit: report
