@@ -101,6 +101,7 @@ workflow {
     /*
      * SUBWORKFLOW: Read in samplesheet, validate and stage input files
      */
+    
     INPUT_CHECK ( 
         ch_input
     )
@@ -108,6 +109,7 @@ workflow {
     /*
      * SUBWORKFLOW: Read QC and trim adapters
      */
+    
     FASTQC_FASTP (
         INPUT_CHECK.out.sample_info
     )
@@ -118,7 +120,7 @@ workflow {
     /*
     * MODULE: Run kraken2
     */
-    ch_kraken2_multiqc = Channel.empty()
+    
     KRAKEN2_RUN (
             ch_reads,
             ch_kraken2db
