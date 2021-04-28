@@ -113,7 +113,7 @@ workflow {
     FASTQC_FASTP (
         INPUT_CHECK.out.sample_info
     )
-    ch_reads    = FASTQC_FASTP.out.reads
+    ch_reads             = FASTQC_FASTP.out.reads
     ch_software_versions = ch_software_versions.mix(FASTQC_FASTP.out.fastqc_version.first().ifEmpty(null))
     ch_software_versions = ch_software_versions.mix(FASTQC_FASTP.out.fastp_version.first().ifEmpty(null))
 
@@ -137,7 +137,7 @@ workflow {
             ch_kraken2_bracken,
             ch_brackendb
         )
-        ch_bracken           = BRACKEN.out.brackenreport
+        ch_bracken           = BRACKEN.out.report
         ch_software_versions = ch_software_versions.mix(BRACKEN.out.version.first().ifEmpty(null))
 
     /*

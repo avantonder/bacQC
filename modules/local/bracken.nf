@@ -19,7 +19,8 @@ process BRACKEN {
     path brackendb
 
     output:
-    tuple val(meta), path('*_output_species_abundance.txt'), emit: brackenreport
+    tuple val(meta), path('*_output_species_abundance.txt'), emit: report
+    tuple val(meta), path('*.report_bracken_species.txt'),   emit: txt_new
     path "*.version.txt",                                    emit: version
     
     script: // This script is bundled with the pipeline in avantonder/bacQC/bin/
