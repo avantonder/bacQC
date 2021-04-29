@@ -4,7 +4,7 @@ import os, argparse, sys, subprocess, glob
 import pandas as pd
 import numpy as np
 
-kraken_report_files = sorted(glob.glob('*_kraken2.report'))
+kraken_report_files = sorted(glob.glob('*.kraken2.report.txt'))
 
 species_abundance_files = sorted(glob.glob('*_output_species_abundance.txt'))
 
