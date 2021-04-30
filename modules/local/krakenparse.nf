@@ -18,8 +18,8 @@ process KRAKENPARSE {
     }
     
     input:
-    path ('kraken2/*')
-    path ('bracken/*')
+    tuple val(meta), path(txt)
+    tuple val(meta), path(report)
 
     output:
     path "Bracken_species_composition.tsv", emit: composition
