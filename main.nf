@@ -145,8 +145,8 @@ workflow {
     */
 
     KRAKENPARSE (
-            ch_kraken2_krakenparse,
-            ch_bracken
+            KRAKEN2_RUN.out.txt.collect{it[1]}.ifEmpty([]),
+            BRACKEN.out.report.txt.collect{it[1]}.ifEmpty([])
         )
         ch_software_versions = ch_software_versions.mix(KRAKENPARSE.out.version.first().ifEmpty(null))
     
