@@ -1,19 +1,14 @@
 ----------------------------------------------------
-                                        ,--./,-.
-        ___     __   __   __   ___     /,-._.--~\\
-  |\\ | |__  __ /  ` /  \\ |__) |__         }  {
-  | \\| |       \\__, \\__/ |  \\ |___     \\`-._,-`-,
-                                        `._,._,'
-  nf-core/bacqc v${version}
+  avantonder/bacQC v${version}
 ----------------------------------------------------
 
 Run Name: $runName
 
 <% if (success){
-    out << "## nf-core/bacqc execution completed successfully! ##"
+    out << "## avantonder/bacQC execution completed successfully! ##"
 } else {
     out << """####################################################
-## nf-core/bacqc execution completed unsuccessfully! ##
+## avantonder/bacQC execution completed unsuccessfully! ##
 ####################################################
 The exit status of the task that caused the workflow execution to fail was: $exitStatus.
 The full error message was:
@@ -36,5 +31,5 @@ Pipeline Configuration:
 <% out << summary.collect{ k,v -> " - $k: $v" }.join("\n") %>
 
 --
-nf-core/bacqc
-https://github.com/nf-core/bacqc
+avantonder/bacQC
+https://github.com/avantonder/bacQC
