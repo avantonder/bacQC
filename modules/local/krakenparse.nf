@@ -18,8 +18,8 @@ process KRAKENPARSE {
     }
     
     input:
-    path ('*_output_species_abundance.txt')
-    path ('*.kraken2.report.txt')
+    path ('kraken2/*')
+    path ('bracken/*')
 
     output:
     path "Bracken_species_composition.tsv", emit: composition

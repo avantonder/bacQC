@@ -126,6 +126,7 @@ workflow {
             ch_kraken2db
         )
         ch_kraken2_bracken       = KRAKEN2_RUN.out.txt
+        ch_kraken2_krakenparse   = KRAKEN2_RUN.out.txt
         ch_software_versions     = ch_software_versions.mix(KRAKEN2_RUN.out.version.first().ifEmpty(null))
 
     /*
@@ -136,6 +137,7 @@ workflow {
             ch_kraken2_bracken,
             ch_brackendb
         )
+        ch_bracken_krakenparse           = BRACKEN.out.report
         ch_software_versions = ch_software_versions.mix(BRACKEN.out.version.first().ifEmpty(null))
 
     /*
@@ -143,8 +145,8 @@ workflow {
     */
 
     KRAKENPARSE (
-            KRAKEN2_RUN.out.txt.collect{it[1]}.ifEmpty([]),
-            BRACKEN.out.report.collect{it[1]}.ifEmpty([])
+            ch_kraken2_krakenparse.collect{it[1]}.ifEmpty([]),
+            ch_bracken_krakenparse.collect{it[1]}.ifEmpty([])
         )
         ch_software_versions = ch_software_versions.mix(KRAKENPARSE.out.version.first().ifEmpty(null))
     
