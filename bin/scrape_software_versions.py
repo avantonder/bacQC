@@ -18,7 +18,7 @@ for version_file in version_files:
 print(
     """
 id: 'software_versions'
-section_name: 'avantonder/bacQC Software Versions'
+section_name: 'bacQC Software Versions'
 section_href: 'https://github.com/avantonder/bacQC'
 plot_type: 'html'
 description: 'are collected at run time from the software output.'
