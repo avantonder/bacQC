@@ -32,8 +32,8 @@ process KRAKEN2_RUN {
     def software     = getSoftwareName(task.process)
     def prefix       = options.suffix  ? "${meta.id}${options.suffix}"  : "${meta.id}"
     def paired       = meta.single_end ? "" : "--paired"
-    def classified   = meta.single_end ? "${prefix}.classified.fastq"   : "${prefix}.classified#.fastq"
-    def unclassified = meta.single_end ? "${prefix}.unclassified.fastq" : "${prefix}.unclassified#.fastq"
+    def classified   = meta.single_end ? "${prefix}.classified.fastq"   : "${prefix}.classified_paired.fastq"
+    def unclassified = meta.single_end ? "${prefix}.unclassified.fastq" : "${prefix}.unclassified_paired.fastq"
     """
     kraken2 \\
         --db $db \\
