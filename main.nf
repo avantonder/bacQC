@@ -137,8 +137,8 @@ workflow {
             ch_kraken2_bracken,
             ch_brackendb
         )
-        ch_bracken_krakenparse           = BRACKEN.out.report
-        ch_software_versions = ch_software_versions.mix(BRACKEN.out.version.first().ifEmpty(null))
+        ch_bracken_krakenparse = BRACKEN.out.report
+        ch_software_versions   = ch_software_versions.mix(BRACKEN.out.version.first().ifEmpty(null))
 
     /*
     * MODULE: Run krakenparse
