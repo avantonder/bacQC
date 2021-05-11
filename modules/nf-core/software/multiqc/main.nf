@@ -21,7 +21,6 @@ process MULTIQC {
     path 'multiqc_config.yaml'
     path multiqc_custom_config
     path software_versions
-    path workflow_summary
     path ('fastqc/*')
     path ('fastp/*')
 
