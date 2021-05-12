@@ -1,0 +1,2 @@
+sample,fastq_1,fastq_2
+SRR11090462,/Users/avt/Documents/HPC/Pipelines/bacQC/test-datasets/SRR11090462_1.fastq.gz,/Users/avt/Documents/HPC/Pipelines/bacQC/test-datasets/SRR11090462_2.fastq.gz
