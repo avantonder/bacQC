@@ -1,6 +1,4 @@
-# nf-core/bacqc: Output
-
-## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/bacqc/output](https://nf-co.re/bacqc/output)
+# bacQC: Output
 
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
 
@@ -10,14 +8,15 @@ This document describes the output produced by the pipeline. Most of the plots a
 
 The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
 
-<!-- TODO nf-core: Write this documentation describing your workflow's output -->
-
 ## Pipeline overview
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
 
 * [FastQC](#fastqc) - Read quality control
+* [fastp](#fastp) - Read trimming
+* [Kraken 2](#kraken-2) - Removal/QC for host reads
+* [Bracken](#bracken) - Estimate read assignment from kraken 2 results
 * [MultiQC](#multiqc) - Aggregate report describing results from the whole pipeline
 * [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -35,6 +34,34 @@ For further reading and documentation see the [FastQC help pages](http://www.bio
   * `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
 
 > **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
+
+## fastp
+[fastp](https://github.com/OpenGene/fastp) is a tool designed to provide fast all-in-one preprocessing for FastQ files. This tool is developed in C++ with multithreading supported to afford high performance.
+
+**Output files:**
+
+* `fastp/`
+  * `*.html` html reports of the trimming process that can be opened in any modern web browser
+  * `*.json` trimming report metrics in JSON computer readable formats
+
+## Kraken 2
+
+[Kraken 2](https://ccb.jhu.edu/software/kraken2/index.shtml?t=manual) is a sequence classifier that assigns taxonomic labels to DNA sequences. Kraken 2 examines the k-mers within a query sequence and uses the information within those k-mers to query a database. That database maps k-mers to the lowest common ancestor (LCA) of all genomes known to contain a given k-mer.
+
+**Output files:**
+
+* `kraken2/`
+  * `*.kraken2.report.txt`: Kraken 2 taxonomic report. See [here](https://ccb.jhu.edu/software/kraken2/index.shtml?t=manual#sample-report-output-format) for a detailed description of the format.
+
+## Bracken
+
+[Bracken](https://ccb.jhu.edu/software/bracken/) is a highly accurate statistical method that computes the abundance of species in DNA sequences from a metagenomics sample. Braken uses the taxonomy labels assigned by Kraken, a highly accurate metagenomics classification algorithm, to estimate the number of reads originating from each species present in a sample.
+
+**Output files:**
+
+* `bracken/`
+  * `*.kraken2.report_bracken_species.txt`:
+  * `*_output_species_abundance.txt`:
 
 ## MultiQC
 
