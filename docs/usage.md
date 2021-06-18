@@ -1,4 +1,4 @@
-# avantonder/bacQC: Usage
+# bacQC: Usage
 
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
 
@@ -11,7 +11,7 @@
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run avantonder/bacQC --input samplesheet.csv -profile docker
+nextflow run avantonder/bacQC --input samplesheet.csv -profile docker --kraken2db path/to/kraken2/dir --bracken path/to/kraken2/dir/kmerdistribution
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
