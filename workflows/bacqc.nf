@@ -172,10 +172,10 @@ workflow BACQC {
         KRAKENTOOLS_EXTRACT (
                 ch_variants_fastq
                     .join(KRAKEN2_KRAKEN2.out.output)
-                    .join(KRAKEN2_KRAKEN2.out.report)
+                    .join(KRAKEN2_KRAKEN2.out.txt)
                     .map {
-                        meta, reads, output, report -> 
-                            [ meta, reads, output, report ]
+                        meta, reads, output, txt -> 
+                            [ meta, reads, output, txt ]
                     }
                     .set {ch_krakenextract}
                 ch_krakenextract
