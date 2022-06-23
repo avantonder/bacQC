@@ -11,12 +11,12 @@ process KRAKENTOOLS_EXTRACT {
 
     input:
     tuple val(meta), path(reads) 
-    path kraken_out
+    tuple val(meta), path(kraken_out)
     val tax_id
 
     output:
-    tuple val(meta), path('*.extracted.fastq.gz')  , emit: reads
-    path "versions.yml", emit: versions
+    tuple val(meta), path('*.extracted.fastq.gz') , emit: reads
+    path "versions.yml"                           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
