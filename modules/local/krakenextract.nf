@@ -33,7 +33,7 @@ process KRAKENTOOLS_EXTRACT {
             -t ${tax_id} \\
             ${args}
 
-        pigz -p $task.cpus *.fastq
+        gzip *.fastq
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -51,12 +51,12 @@ process KRAKENTOOLS_EXTRACT {
         -t ${tax_id} \\
         ${args}
 
-    pigz -p $task.cpus *.fastq
+        gzip *.fastq
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        extract_kraken_reads.py: ${VERSION}
-    END_VERSIONS
-    """
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            extract_kraken_reads.py: ${VERSION}
+        END_VERSIONS
+        """
     }
 }
