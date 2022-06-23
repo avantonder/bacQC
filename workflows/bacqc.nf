@@ -120,7 +120,7 @@ workflow BACQC {
             .join(FASTQC_FASTP.out.trim_json)
             .map {
                 meta, reads, json ->
-                    pass = WorkflowBovisanalyzer.getFastpReadsAfterFiltering(json) > 0
+                    pass = WorkflowBacQC.getFastpReadsAfterFiltering(json) > 0
                     [ meta, reads, json, pass ]
             }
             .set { ch_pass_fail_reads }
@@ -134,7 +134,7 @@ workflow BACQC {
                 meta, reads, json, pass ->
                 if (!pass) {
                     fail_mapped_reads[meta.id] = 0
-                    num_reads = WorkflowBovisanalyzer.getFastpReadsBeforeFiltering(json)
+                    num_reads = WorkflowBacQC.getFastpReadsBeforeFiltering(json)
                     return [ "$meta.id\t$num_reads" ]
                 }
             }
