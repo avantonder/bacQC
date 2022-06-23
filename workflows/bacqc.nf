@@ -40,6 +40,7 @@ ch_multiqc_custom_config = params.multiqc_config ? file(params.multiqc_config) :
 
 include { FASTQSCANPARSE              } from '../modules/local/fastqscanparse'
 include { KRAKENPARSE                 } from '../modules/local/krakenparse'
+include { KRAKENTOOLS_EXTRACT         } from '../modules/local/krakenextract'
 
 include { INPUT_CHECK                 } from '../subworkflows/local/input_check'
 include { FASTQC_FASTP                } from '../subworkflows/local/fastqc_fastp'
@@ -160,8 +161,22 @@ workflow BACQC {
             )
         ch_kraken2_bracken       = KRAKEN2_KRAKEN2.out.txt
         ch_kraken2_krakenparse   = KRAKEN2_KRAKEN2.out.txt
+        ch_kraken2_krakenextract = KRAKEN2_KRAKEN2.out.output
         ch_kraken2_multiqc       = KRAKEN2_KRAKEN2.out.txt
         ch_versions              = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first().ifEmpty(null))
+    }
+    
+    //
+    // MODULE: Run krakentools extract
+    // 
+    if (params.kraken_extract) {
+        KRAKENTOOLS_EXTRACT (
+                ch_variants_fastq,
+                ch_kraken2_krakenextract,
+                params.tax_id
+        )
+        ch_versions = ch_versions.mix(KRAKENTOOLS_EXTRACT.out.versions.first().ifEmpty(null))
+
     }
     
     //
