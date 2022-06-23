@@ -10,9 +10,7 @@ process KRAKENTOOLS_EXTRACT {
         'quay.io/biocontainers/krakentools:1.2--pyh5e36f6f_0' }"
 
     input:
-    tuple val(meta), path(reads) 
-    tuple val(meta), path(kraken_out)
-    tuple val(meta), path(kraken_report)
+    tuple val(meta), path(reads), path(kraken_out), path(kraken_report)
     val tax_id
 
     output:
