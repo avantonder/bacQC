@@ -8,7 +8,8 @@ process FASTQSCAN {
         'quay.io/biocontainers/fastq-scan:0.4.4--h7d875b9_0' }"
 
     input:
-    tuple val(meta), path(reads), val(genome_size)
+    tuple val(meta), path(reads)
+    val genome_size
 
     output:
     tuple val(meta), path("*.json"), emit: json
