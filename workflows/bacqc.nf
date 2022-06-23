@@ -159,11 +159,12 @@ workflow BACQC {
                 ch_variants_fastq,
                 ch_kraken2db
             )
-        ch_kraken2_bracken       = KRAKEN2_KRAKEN2.out.txt
-        ch_kraken2_krakenparse   = KRAKEN2_KRAKEN2.out.txt
-        ch_kraken2_krakenextract = KRAKEN2_KRAKEN2.out.output
-        ch_kraken2_multiqc       = KRAKEN2_KRAKEN2.out.txt
-        ch_versions              = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first().ifEmpty(null))
+        ch_kraken2_bracken             = KRAKEN2_KRAKEN2.out.txt
+        ch_kraken2_krakenparse         = KRAKEN2_KRAKEN2.out.txt
+        ch_kraken2_krakenextractout    = KRAKEN2_KRAKEN2.out.output
+        ch_kraken2_krakenextractreport = KRAKEN2_KRAKEN2.out.txt
+        ch_kraken2_multiqc             = KRAKEN2_KRAKEN2.out.txt
+        ch_versions                    = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first().ifEmpty(null))
     }
     
     //
@@ -172,7 +173,8 @@ workflow BACQC {
     if (params.kraken_extract) {
         KRAKENTOOLS_EXTRACT (
                 ch_variants_fastq,
-                ch_kraken2_krakenextract,
+                ch_kraken2_krakenextractout,
+                ch_kraken2_krakenextractreport,
                 params.tax_id
         )
         ch_versions = ch_versions.mix(KRAKENTOOLS_EXTRACT.out.versions.first().ifEmpty(null))

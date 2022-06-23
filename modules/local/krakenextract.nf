@@ -12,6 +12,7 @@ process KRAKENTOOLS_EXTRACT {
     input:
     tuple val(meta), path(reads) 
     tuple val(meta), path(kraken_out)
+    tuple val(meta), path(kraken_report)
     val tax_id
 
     output:
@@ -28,6 +29,7 @@ process KRAKENTOOLS_EXTRACT {
         """
         extract_kraken_reads.py \\
             -k ${kraken_out} \\
+            -r ${kraken_report} \\
             -s ${prefix}.trim.fastq.gz \\
             -o ${prefix}.extracted.fastq \\
             -t ${tax_id} \\
@@ -44,6 +46,7 @@ process KRAKENTOOLS_EXTRACT {
         """
         extract_kraken_reads.py \\
         -k ${kraken_out} \\
+        -r ${kraken_report} \\
         -s1 ${prefix}_1.trim.fastq.gz \\
         -s2 ${prefix}_2.trim.fastq.gz \\
         -o ${prefix}_1.extracted.fastq \\
