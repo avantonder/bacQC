@@ -192,7 +192,7 @@ workflow BACQC {
     //
     // MODULE: MultiQC
     //
-    workflow_summary    = WorkflowBovisanalyzer.paramsSummaryMultiqc(workflow, summary_params)
+    workflow_summary    = WorkflowBacQC.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
     MULTIQC (
