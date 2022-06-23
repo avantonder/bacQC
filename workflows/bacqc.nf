@@ -178,7 +178,7 @@ workflow BACQC {
                             [ meta, reads, output, report ]
                     }
                     .set {ch_krakenextract}
-                ch_krakenextract,
+                ch_krakenextract
                 params.tax_id
         )
         ch_versions = ch_versions.mix(KRAKENTOOLS_EXTRACT.out.versions.first().ifEmpty(null))
