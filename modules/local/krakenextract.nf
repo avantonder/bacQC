@@ -28,7 +28,7 @@ process KRAKENTOOLS_EXTRACT {
         """
         extract_kraken_reads.py \\
             -k ${kraken_out} \\
-            -s ${prefix}.fastq.gz \\
+            -s ${prefix}.trim.fastq.gz \\
             -o ${prefix}.extracted.fastq \\
             -t ${tax_id} \\
             ${args}
@@ -44,8 +44,8 @@ process KRAKENTOOLS_EXTRACT {
         """
         extract_kraken_reads.py \\
         -k ${kraken_out} \\
-        -s1 ${prefix}_1.fastq.gz \\
-        -s2 ${prefix}_2.fastq.gz \\
+        -s1 ${prefix}_1.trim.fastq.gz \\
+        -s2 ${prefix}_2.trim.fastq.gz \\
         -o ${prefix}_1.extracted.fastq \\
         -o2 ${prefix}_2.extracted.fastq \\
         -t ${tax_id} \\
