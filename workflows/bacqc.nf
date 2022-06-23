@@ -169,7 +169,6 @@ workflow BACQC {
     // MODULE: Run krakentools extract
     // 
     if (params.kraken_extract) {
-
         ch_variants_fastq
             .join(KRAKEN2_KRAKEN2.out.output)
             .join(KRAKEN2_KRAKEN2.out.txt)
@@ -183,7 +182,6 @@ workflow BACQC {
                 params.tax_id
         )
         ch_versions = ch_versions.mix(KRAKENTOOLS_EXTRACT.out.versions.first().ifEmpty(null))
-
     }
     
     //
