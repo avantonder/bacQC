@@ -87,7 +87,8 @@ workflow BACQC {
     // MODULE: Run fastq-scan
     //
     FASTQSCAN (
-        INPUT_CHECK.out.reads
+        INPUT_CHECK.out.reads,
+        params.genome_size
     )
     ch_fastqscan_fastqscanparse = FASTQSCAN.out.json
     ch_versions = ch_versions.mix(FASTQSCAN.out.versions.first())
