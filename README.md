@@ -18,6 +18,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 3. Trim reads for quality and adapter sequence ([`fastp`](https://github.com/OpenGene/fastp))
 4. Assign taxonomic labels to sequence reads ([`Kraken 2`](https://ccb.jhu.edu/software/kraken2/))
 5. Re-estimate taxonomic abundance of samples analyzed by kraken 2([`Bracken`](https://ccb.jhu.edu/software/bracken/))
+6. Extract reads using Taxon ID ([`KrakenTools`](https://github.com/jenniferlu717/KrakenTools))) (OPTIONAL)
 6. Present QC and visualisation for raw read, trimmed read and kraken2/Bracken results ([`MultiQC`](http://multiqc.info/))
 
 ## Quick Start
