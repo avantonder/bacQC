@@ -79,7 +79,7 @@ Alternatively the samplesheet.csv file created by nf-core/fetchngs can also be u
 
 ## Documentation
 
-The avantonder/bacQC pipeline comes with documentation about the pipeline [usage](https://github.com/avantonder/bovisanalyzer/blob/main/docs/usage.md), [parameters](https://github.com/avantonder/bovisanalyzer/blob/main/docs/parameters.md) and [output](https://github.com/avantonder/bovisanalyzer/blob/main/docs/output.md).
+The avantonder/bacQC pipeline comes with documentation about the pipeline [usage](https://github.com/avantonder/bacQC/blob/main/docs/usage.md), [parameters](https://github.com/avantonder/bacQC/blob/main/docs/parameters.md) and [output](https://github.com/avantonder/bacQC/blob/main/docs/output.md).
 
 ## Acknowledgements
 
