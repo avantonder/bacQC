@@ -50,7 +50,9 @@ Alternatively the samplesheet.csv file created by nf-core/fetchngs can also be u
         -profile <docker/singularity/podman/conda/institute> \
         --input samplesheet.csv \
         --kraken2db minikraken2_v1_8GB \
-        --brackendb minikraken2_v1_8GB
+        --brackendb minikraken2_v1_8GB \
+        --genome_size 4300000 \
+        --outdir <OUTDIR>
     ```
 
     - Typical command for QC, species composition and read extraction using a taxon ID
@@ -61,7 +63,10 @@ Alternatively the samplesheet.csv file created by nf-core/fetchngs can also be u
         --input samplesheet.csv \
         --kraken2db minikraken2_v1_8GB \
         --brackendb minikraken2_v1_8GB \
-        --genome_size 4300000
+        --genome_size 4300000 \
+        --kraken_extract \
+        --tax_id <TAXON_ID> \
+        --outdir <OUTDIR>
     ```
 
     Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
