@@ -38,7 +38,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
      ```console
      wget -L https://raw.githubusercontent.com/avantonder/bacQC/main/bin/fastq_dir_to_samplesheet.py
-     ./fastq_dir_to_samplesheet.py <FASTQ_DIR> samplesheet.csv
+     ./fastq_dir_to_samplesheet.py <FASTQ_DIR> samplesheet.csv -r1 <FWD_FASTQ_SUFFIX> -r2 <REV_FASTQ_SUFFIX> 
      ```
 Alternatively the samplesheet.csv file created by nf-core/fetchngs can also be used.
 
