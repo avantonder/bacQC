@@ -91,7 +91,8 @@ workflow BACQC {
     // MODULE: Run fastq-scan
     //
     FASTQSCAN_RAW (
-        INPUT_CHECK.out.reads
+        INPUT_CHECK.out.reads,
+        params.genome_size
     )
     ch_fastqscanraw_fastqscanparse = FASTQSCAN_RAW.out.json
     ch_fastqscanraw_readstats      = FASTQSCAN_RAW.out.json
@@ -157,7 +158,8 @@ workflow BACQC {
     // MODULE: Run fastq-scan
     //
     FASTQSCAN_TRIM (
-        ch_variants_fastq
+        ch_variants_fastq,
+        params.genome_size
     )
     ch_fastqscantrim_fastqscanparse = FASTQSCAN_TRIM.out.json
     ch_versions                     = ch_versions.mix(FASTQSCAN_TRIM.out.versions.first())
