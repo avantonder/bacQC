@@ -56,13 +56,14 @@ include { FASTQC_FASTP                          } from '../subworkflows/local/fa
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQSCAN                                               } from '../modules/nf-core/modules/fastqscan/main'
-include { KRAKEN2_KRAKEN2                                         } from '../modules/nf-core/modules/kraken2/kraken2/main'
-include { BRACKEN_BRACKEN                                         } from '../modules/nf-core/modules/bracken/bracken/main'
+include { FASTQSCAN as FASTQSCAN_RAW                      } from '../modules/nf-core/modules/fastqscan/main'
+include { FASTQSCAN as FASTQSCAN_TRIM                     } from '../modules/nf-core/modules/fastqscan/main'
+include { KRAKEN2_KRAKEN2                                 } from '../modules/nf-core/modules/kraken2/kraken2/main'
+include { BRACKEN_BRACKEN                                 } from '../modules/nf-core/modules/bracken/bracken/main'
 
-include { MULTIQC                                                 } from '../modules/nf-core/modules/multiqc/main'
-include { MULTIQC_TSV_FROM_LIST as MULTIQC_TSV_FAIL_READS         } from '../modules/local/multiqc_tsv_from_list'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                             } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main' 
+include { MULTIQC                                         } from '../modules/nf-core/modules/multiqc/main'
+include { MULTIQC_TSV_FROM_LIST as MULTIQC_TSV_FAIL_READS } from '../modules/local/multiqc_tsv_from_list'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                     } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main' 
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
