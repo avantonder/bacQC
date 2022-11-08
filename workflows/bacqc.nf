@@ -152,7 +152,7 @@ workflow BACQC {
         .set { ch_fail_reads_multiqc }
     }
 
-    /
+    //
     // MODULE: Run fastq-scan
     //
     FASTQSCAN_TRIM (
@@ -188,7 +188,7 @@ workflow BACQC {
     READSTATS_PARSE (
         ch_readstats_readstatsparse.collect{it[1]}.ifEmpty([])
     )
-    ch_versions           = ch_versions.mix(READSTATS_PARSE.out.versions.first())
+    ch_versions = ch_versions.mix(READSTATS_PARSE.out.versions.first())
     
     //
     // MODULE: Run kraken2
