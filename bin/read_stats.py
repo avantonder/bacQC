@@ -29,7 +29,7 @@ raw_jsons_data_df = pd.DataFrame.from_dict(raw_jsons_data, orient = 'index')
 
 raw_json_merged_df = raw_json_names_df.join(raw_jsons_data_df)
 
-fastqscan_raw_df = raw_json_merged_df.iloc[:, [0,3]]
+fastqscan_raw_df = raw_json_merged_df.iloc[:, 0:4]
 
 fastqscan_raw_df = fastqscan_raw_df.rename(columns = {'total_bp' : 'raw_total_bp', 'read_total' : 'num_raw_reads', 'coverage' : 'raw_coverage'})
 
@@ -55,7 +55,7 @@ trim_jsons_data_df = pd.DataFrame.from_dict(trim_jsons_data, orient = 'index')
 
 trim_json_merged_df = trim_json_names_df.join(trim_jsons_data_df)
 
-fastqscan_trim_df = trim_json_merged_df.iloc[:, [0,3]]
+fastqscan_trim_df = trim_json_merged_df.iloc[:, 0:4]
 
 fastqscan_trim_df = fastqscan_trim_df.rename(columns = {'total_bp' : 'trim_total_bp', 'read_total' : 'num_trim_reads', 'coverage' : 'trim_coverage'})
 
@@ -63,7 +63,7 @@ fastqscan_trim_df = fastqscan_trim_df.rename(columns = {'total_bp' : 'trim_total
 
 fastqscan_merged = pd.merge(fastqscan_raw_df, fastqscan_trim_df, on = ['Sample'])
 
-fastqscan_merged['%after_trimmed'] = fastqscan_merged['num_trim_reads'] / fastqscan_merged['num_raw_reads'] * 100
+fastqscan_merged['%reads_after_trimmed'] = fastqscan_merged['num_trim_reads'] / fastqscan_merged['num_raw_reads'] * 100
 
 # Write merged dataframe to csv file
 
