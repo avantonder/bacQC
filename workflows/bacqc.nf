@@ -9,7 +9,6 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 // Validate input parameters
 WorkflowBacQC.initialise(params, log)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.input, params.multiqc_config, params.kraken2db, params.brackendb]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
@@ -38,12 +37,15 @@ ch_multiqc_custom_config = params.multiqc_config ? file(params.multiqc_config) :
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 
-include { FASTQSCANPARSE              } from '../modules/local/fastqscanparse'
-include { KRAKENPARSE                 } from '../modules/local/krakenparse'
-include { KRAKENTOOLS_EXTRACT         } from '../modules/local/krakenextract'
+include { FASTQSCANPARSE as FASTQSCANPARSE_RAW  } from '../modules/local/fastqscanparse'
+include { FASTQSCANPARSE as FASTQSCANPARSE_TRIM } from '../modules/local/fastqscanparse'
+include { READ_STATS                            } from '../modules/local/read_stats'
+include { READSTATS_PARSE                       } from '../modules/local/readstats_parse'
+include { KRAKENPARSE                           } from '../modules/local/krakenparse'
+include { KRAKENTOOLS_EXTRACT                   } from '../modules/local/krakenextract'
 
-include { INPUT_CHECK                 } from '../subworkflows/local/input_check'
-include { FASTQC_FASTP                } from '../subworkflows/local/fastqc_fastp'
+include { INPUT_CHECK                           } from '../subworkflows/local/input_check'
+include { FASTQC_FASTP                          } from '../subworkflows/local/fastqc_fastp'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,13 +56,14 @@ include { FASTQC_FASTP                } from '../subworkflows/local/fastqc_fastp
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQSCAN                                               } from '../modules/nf-core/modules/fastqscan/main'
-include { KRAKEN2_KRAKEN2                                         } from '../modules/nf-core/modules/kraken2/kraken2/main'
-include { BRACKEN_BRACKEN                                         } from '../modules/nf-core/modules/bracken/bracken/main'
+include { FASTQSCAN as FASTQSCAN_RAW                      } from '../modules/nf-core/modules/fastqscan/main'
+include { FASTQSCAN as FASTQSCAN_TRIM                     } from '../modules/nf-core/modules/fastqscan/main'
+include { KRAKEN2_KRAKEN2                                 } from '../modules/nf-core/modules/kraken2/kraken2/main'
+include { BRACKEN_BRACKEN                                 } from '../modules/nf-core/modules/bracken/bracken/main'
 
-include { MULTIQC                                                 } from '../modules/nf-core/modules/multiqc/main'
-include { MULTIQC_TSV_FROM_LIST as MULTIQC_TSV_FAIL_READS         } from '../modules/local/multiqc_tsv_from_list'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                             } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main' 
+include { MULTIQC                                         } from '../modules/nf-core/modules/multiqc/main'
+include { MULTIQC_TSV_FROM_LIST as MULTIQC_TSV_FAIL_READS } from '../modules/local/multiqc_tsv_from_list'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                     } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main' 
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,20 +90,21 @@ workflow BACQC {
     //
     // MODULE: Run fastq-scan
     //
-    FASTQSCAN (
+    FASTQSCAN_RAW (
         INPUT_CHECK.out.reads,
         params.genome_size
     )
-    ch_fastqscan_fastqscanparse = FASTQSCAN.out.json
-    ch_versions = ch_versions.mix(FASTQSCAN.out.versions.first())
+    ch_fastqscanraw_fastqscanparse = FASTQSCAN_RAW.out.json
+    ch_fastqscanraw_readstats      = FASTQSCAN_RAW.out.json
+    ch_versions                    = ch_versions.mix(FASTQSCAN_RAW.out.versions.first())
 
     //
     // MODULE: Run fastqscanparse
     //
-    FASTQSCANPARSE (
-            ch_fastqscan_fastqscanparse.collect{it[1]}.ifEmpty([])
+    FASTQSCANPARSE_RAW (
+        ch_fastqscanraw_fastqscanparse.collect{it[1]}.ifEmpty([])
     )
-    ch_versions = ch_versions.mix(FASTQSCANPARSE.out.versions.first())
+    ch_versions = ch_versions.mix(FASTQSCANPARSE_RAW.out.versions.first())
 
     //
     // SUBWORKFLOW: Read QC and trim adapters
@@ -150,6 +154,45 @@ workflow BACQC {
         .set { ch_fail_reads_multiqc }
     }
 
+    //
+    // MODULE: Run fastq-scan
+    //
+    FASTQSCAN_TRIM (
+        ch_variants_fastq,
+        params.genome_size
+    )
+    ch_fastqscantrim_fastqscanparse = FASTQSCAN_TRIM.out.json
+    ch_versions                     = ch_versions.mix(FASTQSCAN_TRIM.out.versions.first())
+
+    //
+    // MODULE: Run fastqscanparse
+    //
+    FASTQSCANPARSE_TRIM (
+            ch_fastqscantrim_fastqscanparse.collect{it[1]}.ifEmpty([])
+    )
+    ch_versions = ch_versions.mix(FASTQSCANPARSE_TRIM.out.versions.first())
+    
+    //
+    // MODULE: Calculate read stats
+    //
+    ch_fastqscanraw_readstats                           // tuple val(meta), path(json)
+        .join( FASTQSCAN_TRIM.out.json )                // tuple val(meta), path(json) 
+        .set { ch_readstats }                           // tuple val(meta), path(json), path(json)
+
+    READ_STATS (
+        ch_readstats
+    )
+    ch_readstats_readstatsparse = READ_STATS.out.csv
+    ch_versions                 = ch_versions.mix(READ_STATS.out.versions.first())
+
+    //
+    // MODULE: Summarise read stats outputs
+    //
+    READSTATS_PARSE (
+        ch_readstats_readstatsparse.collect{it[1]}.ifEmpty([])
+    )
+    ch_versions = ch_versions.mix(READSTATS_PARSE.out.versions.first())
+    
     //
     // MODULE: Run kraken2
     //  
