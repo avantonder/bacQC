@@ -78,7 +78,7 @@ def main(args=None):
     fastqscan_merged['%reads_after_trimmed'] = fastqscan_merged['num_trim_reads'] / fastqscan_merged['num_raw_reads'] * 100
     
     ## Write output file
-    merged_df.to_csv(args.output_file, sep = ',', header = True, index = False)
+    fastqscan_merged.to_csv(args.output_file, sep = ',', header = True, index = False)
 
 if __name__ == '__main__':
     sys.exit(main())
