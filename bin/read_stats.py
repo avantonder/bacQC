@@ -2,71 +2,83 @@
 
 import pandas as pd
 import numpy as np
+import os
+import sys
 import glob
 import json
+import argparse
 
-# Parse raw fastq-scan results
+def parser_args(args=None):
+    """ 
+    Function for input arguments for read_stats.py
+    """
+    Description = 'Collect fastq-scan and create a table for each sample'
+    Epilog = """Example usage: python read_stats.py """
+    parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
+    parser.add_argument("-of", "--output_file" , type=str, default="read_stats.csv", help="read stats file (default: 'read_stats.csv').")
+    return parser.parse_args(args)
 
-# Read in fastqscan json files
+def make_dir(path):
+    """ 
+    Function for making a directory from a provided path
+    """
+    if not len(path) == 0:
+        try:
+            os.makedirs(path)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
 
-raw_json_file = sorted(glob.glob('*.raw.json'))
+def json_to_dataframe(json_files):
+    """ 
+    Function to take list of json files and create a summary table
+    """
+    json_names = [i.replace('.json', '') for i in json_files]
+    json_names_df = pd.DataFrame(json_names)
+    json_names_df.columns = ['Sample']
+    jsons_data = {}
 
-raw_json_names = [i.replace('.raw.json', '') for i in raw_json_file]
+    for index, file in enumerate(json_files):
+        with open(file, 'r') as f:
+            json_text = json.loads(f.read())
+            qc = json_text['qc_stats']
+            jsons_data[index] = qc
 
-raw_json_names_df = pd.DataFrame(raw_json_names)
+    jsons_data_df = pd.DataFrame.from_dict(jsons_data, orient = 'index')
+    json_merged_df = json_names_df.join(jsons_data_df)
+    json_merged_df = json_merged_df.iloc[:, 0:4]
 
-raw_json_names_df.columns = ['Sample']
+    return json_merged_df
 
-raw_jsons_data = {}
+def main(args=None):
+    args = parser_args(args)
 
-for index, file in enumerate(raw_json_file):
-    with open(file, 'r') as f:
-        raw_json_text = json.loads(f.read())
-        qc = raw_json_text['qc_stats']
-        raw_jsons_data[index] = qc
+    ## Create output directory if it doesn't exist
+    out_dir = os.path.dirname(args.output_file)
+    make_dir(out_dir)
 
-raw_jsons_data_df = pd.DataFrame.from_dict(raw_jsons_data, orient = 'index')
+    ## Create list of raw reads fastq-scan json files
+    raw_json_files = sorted(glob.glob('*.raw.json'))
 
-raw_json_merged_df = raw_json_names_df.join(raw_jsons_data_df)
+    ## Create list of trimmed reads fastq-scan json files
+    trim_json_files = sorted(glob.glob('*.trim.json'))
 
-fastqscan_raw_df = raw_json_merged_df.iloc[:, 0:4]
+    ## Create dataframe of raw reads fastq-scan results
+    raw_json_df = json_to_dataframe(raw_json_files)
+    raw_json_df = raw_json_df.rename(columns = {'total_bp' : 'raw_total_bp', 'read_total' : 'num_raw_reads', 'coverage' : 'raw_coverage'})
+    raw_json_df['Sample'] = raw_json_df['Sample'].str.replace('.raw','')
 
-fastqscan_raw_df = fastqscan_raw_df.rename(columns = {'total_bp' : 'raw_total_bp', 'read_total' : 'num_raw_reads', 'coverage' : 'raw_coverage'})
+    ## Create dataframe of trimmed reads fastq-scan results
+    trim_json_df = json_to_dataframe(trim_json_files)
+    trim_json_df = trim_json_df.rename(columns = {'total_bp' : 'trim_total_bp', 'read_total' : 'num_trim_reads', 'coverage' : 'trim_coverage'})
+    trim_json_df['Sample'] = trim_json_df['Sample'].str.replace('.trim','')
 
-# Parse trimmed fastq-scan results
+    ## Merge fastq-scan dataframes
+    fastqscan_merged = pd.merge(raw_json_df, trim_json_df, on = ['Sample'])
+    fastqscan_merged['%reads_after_trimmed'] = fastqscan_merged['num_trim_reads'] / fastqscan_merged['num_raw_reads'] * 100
+    
+    ## Write output file
+    merged_df.to_csv(args.output_file, sep = ',', header = True, index = False)
 
-trim_json_file = sorted(glob.glob('*.trim.json'))
-
-trim_json_names = [i.replace('.trim.json', '') for i in trim_json_file]
-
-trim_json_names_df = pd.DataFrame(trim_json_names)
-
-trim_json_names_df.columns = ['Sample']
-
-trim_jsons_data = {}
-
-for index, file in enumerate(trim_json_file):
-    with open(file, 'r') as f:
-        trim_json_text = json.loads(f.read())
-        qc = trim_json_text['qc_stats']
-        trim_jsons_data[index] = qc
-
-trim_jsons_data_df = pd.DataFrame.from_dict(trim_jsons_data, orient = 'index')
-
-trim_json_merged_df = trim_json_names_df.join(trim_jsons_data_df)
-
-fastqscan_trim_df = trim_json_merged_df.iloc[:, 0:4]
-
-fastqscan_trim_df = fastqscan_trim_df.rename(columns = {'total_bp' : 'trim_total_bp', 'read_total' : 'num_trim_reads', 'coverage' : 'trim_coverage'})
-
-# Merge fastq-scan dataframes
-
-fastqscan_merged = pd.merge(fastqscan_raw_df, fastqscan_trim_df, on = ['Sample'])
-
-fastqscan_merged['%reads_after_trimmed'] = fastqscan_merged['num_trim_reads'] / fastqscan_merged['num_raw_reads'] * 100
-
-# Write merged dataframe to csv file
-
-summary_file_name = 'read_stats.csv'
-
-fastqscan_merged.to_csv(summary_file_name, sep = ',', header = True, index = False)
+if __name__ == '__main__':
+    sys.exit(main())

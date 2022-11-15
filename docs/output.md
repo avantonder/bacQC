@@ -17,6 +17,8 @@ and processes data using the following steps:
 - [`Assign taxonomy to reads`](#assign-taxonomy-to-reads)
 - [`Re-estimate taxonomy`](#re-estimate-taxonomy)
 - [`Extract reads`](#extract-reads)
+- [`Species composition`](#calculate-species-composition)
+- [`Sequencing statistics`](#sequencing-statistics)
 - [`MultiQC`](#multiqc) 
 - [`Pipeline information`](#pipeline-information)
 
@@ -47,7 +49,11 @@ and processes data using the following steps:
 <summary>Output files</summary>
 
 - `fastqscan/`
-  - `*.json`: JSON formatted file of summary statistics.
+  - `raw/*.json`: JSON formatted file of summary statistics for input fastq files.
+  - `trimmed/*.json`: JSON formatted file of summary statistics for trimmed fastq files.
+- `metadata/`
+  - `raw_fastq-scan_summary.tsv`: Final summary tsv file of sequencing statistics for input fastq files for all samples
+  - `trim_fastq-scan_summary.tsv`: Final summary tsv file of sequencing statistics for trimmed fastq files for all samples
 
 </details>
 
@@ -106,6 +112,30 @@ and processes data using the following steps:
 </details>
 
 [KrakenTools](https://github.com/jenniferlu717/KrakenTools) is a suite of scripts to be used for post-analysis of Kraken/KrakenUniq/Kraken2/Bracken results.
+
+### Calculate species composition
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `metadata/`
+  - `species_composition.tsv`: Final summary tsv file of species composition for all samples.
+
+</details>
+
+[kraken_parser.py](https://github.com/avantonder/bacQC/blob/main/bin/kraken_parser.py) is a script used to summarise the results of Kraken 2 and Bracken for all samples.
+
+## Sequencing statistics
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `read_stats/`
+  - `.tsv`: Pre- and post-trimming sequence statistics.
+- `metadata`
+  - `read_stats_summary.tsv`: Final summary tsv file of pre- and post-trimming sequence statistics for all samples.
+
+</details>
 
 ### MultiQC
 

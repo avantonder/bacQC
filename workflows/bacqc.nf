@@ -15,8 +15,8 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
-if (params.kraken2db) { ch_kraken2db = file(params.kraken2db) } else { exit 1, 'kraken2 database not specified!' }
-if (params.brackendb) { ch_brackendb = file(params.brackendb) } else { exit 1, 'bracken database not specified!' }
+//if (params.kraken2db) { ch_kraken2db = file(params.kraken2db) } else { exit 1, 'kraken2 database not specified!' }
+//if (params.brackendb) { ch_brackendb = file(params.brackendb) } else { exit 1, 'bracken database not specified!' }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,6 +206,24 @@ workflow BACQC {
         ch_kraken2_krakenparse         = KRAKEN2_KRAKEN2.out.txt
         ch_kraken2_multiqc             = KRAKEN2_KRAKEN2.out.txt
         ch_versions                    = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first().ifEmpty(null))
+        //
+        // MODULE: Run bracken
+        //
+        BRACKEN_BRACKEN (
+                ch_kraken2_bracken,
+                ch_brackendb
+            )
+        ch_bracken_krakenparse = BRACKEN_BRACKEN.out.reports
+        ch_versions            = ch_versions.mix(BRACKEN_BRACKEN.out.versions.first())
+
+        //
+        // MODULE: Run krakenparse
+        //
+        KRAKENPARSE (
+                ch_kraken2_krakenparse.collect{it[1]}.ifEmpty([]),
+                ch_bracken_krakenparse.collect{it[1]}.ifEmpty([])
+            )
+        ch_versions = ch_versions.mix(KRAKENPARSE.out.versions.first())
     }
     
     //
@@ -227,25 +245,6 @@ workflow BACQC {
         ch_versions = ch_versions.mix(KRAKENTOOLS_EXTRACT.out.versions.first().ifEmpty(null))
     }
     
-    //
-    // MODULE: Run bracken
-    //
-    BRACKEN_BRACKEN (
-            ch_kraken2_bracken,
-            ch_brackendb
-        )
-    ch_bracken_krakenparse = BRACKEN_BRACKEN.out.reports
-    ch_versions            = ch_versions.mix(BRACKEN_BRACKEN.out.versions.first())
-
-    //
-    // MODULE: Run krakenparse
-    //
-    KRAKENPARSE (
-            ch_kraken2_krakenparse.collect{it[1]}.ifEmpty([]),
-            ch_bracken_krakenparse.collect{it[1]}.ifEmpty([])
-        )
-    ch_versions = ch_versions.mix(KRAKENPARSE.out.versions.first())
-
     //
     // MODULE: Collate software versions
     //

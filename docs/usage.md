@@ -4,40 +4,82 @@
 
 ## Samplesheet format
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 3 columns, and a header row as shown in the example below. 
+
+An executable Python script called [`fastq_dir_to_samplesheet.py`](https://github.com/avantonder/bovisanalyzer/blob/main/bin/fastq_dir_to_samplesheet.py) has been provided to auto-create an input samplesheet based on a directory containing FastQ files **before** you run the pipeline (requires Python 3 installed locally) e.g.
+
+     ```console
+     wget -L https://raw.githubusercontent.com/avantonder/bovisanalyzer/main/bin/fastq_dir_to_samplesheet.py
+
+     python fastq_dir_to_samplesheet.py <FASTQ_DIR> \
+        samplesheet.csv \
+        -r1 <FWD_FASTQ_SUFFIX> \
+        -r2 <REV_FASTQ_SUFFIX>
+
+Use the `--input` parameter to specify the location of `samplesheet.csv`. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
 
 ```console
 --input '[path to samplesheet file]'
 ```
 
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once (e.g. to increase sequencing depth). The pipeline will concatenate the raw reads before performing any downstream analysis.
+```console
+--input '[path to samplesheet file]'
+```
+### Full samplesheet
 
-A final samplesheet file may look something like the one below. `SAMPLE_1` was sequenced twice in Illumina PE format, `SAMPLE_2` was sequenced once in Illumina SE format.
+The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
+
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 2 samples, one paired-end and one single-end.
 
 ```console
 sample,fastq_1,fastq_2
-SAMPLE_1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-SAMPLE_1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-SAMPLE_2,AEG588A2_S4_L003_R1_001.fastq.gz,
+SAMPLE_PAIRED_END,/path/to/fastq/files/AEG588A1_S1_L002_R1_001.fastq.gz,/path/to/fastq/files/AEG588A1_S1_L002_R2_001.fastq.gz
+SAMPLE_SINGLE_END,/path/to/fastq/files/AEG588A4_S4_L003_R1_001.fastq.gz,
 ```
 
-| Column    | Description                                                                                                                |
-| --------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample.              |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
+| Column    | Description                                                                                                                                                                            |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 
-> **NB:** Dashes (`-`) and spaces in sample names are automatically converted to underscores (`_`) to avoid downstream issues in the pipeline.
+An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+
+## Kraken 2 database
+
+The pipeline can be provided with a path to a Kraken 2 database which is used, along with Bracken, to assign sequence reads to a particular taxon.  Use the `--kraken2db` and `--brackendb` parameters to specify the location of the Kraken 2 database:
+
+```console
+--kraken2db '[path to Kraken 2 database]'
+--brackendb '[path to Kraken 2 database]'
+```
+
+The Kraken 2 and Bracken steps can by skipped by specifying the `--skip_kraken2` parameter.
+
+## Genome size
+
+The pipeline can be provided with a genome size which will be used by fastq-scan to calculate an approximate read coverage.  Use the `--genome size` parameter to specify the genome size of the species being analysed:
+
+```console
+--genome_size <GENOME_SIZE>
+```
 
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run avantonder/bacQC --input samplesheet.csv -profile docker --kraken2db path/to/kraken2/dir --bracken path/to/kraken2/dir/ --genome_size <ESTIMATED GENOME SIZE>
+nextflow run avantonder/bacQC \
+  --input samplesheet.csv \
+  -profile singularity \
+  --kraken2db path/to/kraken2/dir \
+  --bracken path/to/kraken2/dir/ \
+  --genome_size <ESTIMATED GENOME SIZE> \
+  --outdir <OUTDIR> \
+  -resume
 ```
 
-This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
+This will launch the pipeline with the `singularity` configuration profile. See below for more information about profiles.
 
 Note that the pipeline will create the following files in your working directory:
 
