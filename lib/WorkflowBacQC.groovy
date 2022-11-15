@@ -12,13 +12,8 @@ class WorkflowBacQC {
     //
     public static void initialise(params, log) {
 
-        if (!params.kraken2db) {
-            log.error "kraken2 database not specified! e.g. '--kraken2db minikraken2_v1_8GB' or via a detectable config file."
-            System.exit(1)
-        }
-
-        if (!params.brackendb) {
-            log.error "bracken database not specified! e.g. '--brackendb minikraken2_v1_8GB/database100mers.kmer_distrib' or via a detectable config file."
+        if (!params.input) {
+            log.error "Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'"
             System.exit(1)
         }
     }

@@ -1,90 +1,90 @@
-# bacQC: Output
+# avantonder/bacQC pipeline parameters
 
-> _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
+Pipeline for running QC on bacterial sequence data
 
-## Introduction
+## Input/output options
 
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
+Define where the pipeline should find input data and save output data.
 
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
+| Parameter | Description | Type | Default | Required | Hidden |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| `input` | Path to comma-separated file containing information about the samples in the experiment. <details><summary>Help</summary><small>You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. </small></details>| `string` |  |  |  |
+| `kraken2db` |  | `string` | None |  |  |
+| `brackendb` |  | `string` | None |  |  |
+| `outdir` | The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure. | `string` |  |  |  |
+| `email` | Email address for completion summary. <details><summary>Help</summary><small>Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the 
+workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.</small></details>| `string` |  |  |  |
+| `multiqc_title` | MultiQC report title. Printed as page header, used for filename if not otherwise specified. | `string` |  |  |  |
 
-## Pipeline overview
+## Quality Control options
 
-The pipeline is built using [Nextflow](https://www.nextflow.io/)
-and processes data using the following steps:
 
-* [FastQC](#fastqc) - Read quality control
-* [fastp](#fastp) - Read trimming
-* [Kraken 2](#kraken-2) - Removal/QC for host reads
-* [Bracken](#bracken) - Estimate read assignment from kraken 2 results
-* [MultiQC](#multiqc) - Aggregate report describing results from the whole pipeline
-* [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
-## FastQC
+| Parameter | Description | Type | Default | Required | Hidden |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| `skip_fastp` | Skip the fastp trimming step. | `boolean` |  |  |  |
+| `skip_fastqc` | Skip the fastQC step. | `boolean` |  |  |  |
+| `save_trimmed_fail` | Save failed trimmed reads. | `boolean` |  |  |  |
+| `skip_multiqc` | Skip MultiQC. | `boolean` |  |  |  |
+| `adapter_file` | Path to file containing adapters in FASTA format. | `string` | '${baseDir}/assets/adapters.fas' |  |  |
+| `skip_kraken2` | Skip Kraken 2 and Bracken. | `boolean` |  |  |  |
+| `genome_size` | Specify a genome size to be used by fastq-scan to calculate coverage | `integer` |  |  |  |
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences.
+## Extract reads options
 
-For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
 
-**Output files:**
 
-* `fastqc/`
-  * `*_fastqc.html`: FastQC report containing quality metrics for your untrimmed raw fastq files.
-* `fastqc/zips/`
-  * `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
+| Parameter | Description | Type | Default | Required | Hidden |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| `kraken_extract` | Extract reads from fastq files based on taxon id | `boolean` |  |  |  |
+| `tax_id` | If --kraken_extract is used, --tax_is specifies the taxon id to be used to extract reads | `string` |  |  |  |
 
-> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
+## Institutional config options
 
-## fastp
-[fastp](https://github.com/OpenGene/fastp) is a tool designed to provide fast all-in-one preprocessing for FastQ files. This tool is developed in C++ with multithreading supported to afford high performance.
+Parameters used to describe centralised config profiles. These should not be edited.
 
-**Output files:**
+| Parameter | Description | Type | Default | Required | Hidden |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| `custom_config_version` | Git commit id for Institutional configs. | `string` | master |  | True |
+| `custom_config_base` | Base directory for Institutional configs. <details><summary>Help</summary><small>If you're running offline, Nextflow will not be able to fetch the institutional config files 
+from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this 
+parameter.</small></details>| `string` | https://raw.githubusercontent.com/nf-core/configs/master |  | True |
+| `config_profile_name` | Institutional config name. | `string` |  |  | True |
+| `config_profile_description` | Institutional config description. | `string` |  |  | True |
+| `config_profile_contact` | Institutional config contact information. | `string` |  |  | True |
+| `config_profile_url` | Institutional config URL link. | `string` |  |  | True |
 
-* `fastp/`
-  * `*.html` html reports of the trimming process that can be opened in any modern web browser
-  * `*.json` trimming report metrics in JSON computer readable formats
+## Max job request options
 
-## Kraken 2
+Set the top limit for requested resources for any single job.
 
-[Kraken 2](https://ccb.jhu.edu/software/kraken2/index.shtml?t=manual) is a sequence classifier that assigns taxonomic labels to DNA sequences. Kraken 2 examines the k-mers within a query sequence and uses the information within those k-mers to query a database. That database maps k-mers to the lowest common ancestor (LCA) of all genomes known to contain a given k-mer.
+| Parameter | Description | Type | Default | Required | Hidden |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| `max_cpus` | Maximum number of CPUs that can be requested for any single job. <details><summary>Help</summary><small>Use to set an upper-limit for the CPU requirement for each process. Should be an 
+integer e.g. `--max_cpus 1`</small></details>| `integer` | 16 |  | True |
+| `max_memory` | Maximum amount of memory that can be requested for any single job. <details><summary>Help</summary><small>Use to set an upper-limit for the memory requirement for each process. Should 
+be a string in the format integer-unit e.g. `--max_memory '8.GB'`</small></details>| `string` | 128.GB |  | True |
+| `max_time` | Maximum amount of time that can be requested for any single job. <details><summary>Help</summary><small>Use to set an upper-limit for the time requirement for each process. Should be a 
+string in the format integer-unit e.g. `--max_time '2.h'`</small></details>| `string` | 240.h |  | True |
 
-**Output files:**
+## Generic options
 
-* `kraken2/`
-  * `*.kraken2.report.txt`: Kraken 2 taxonomic report. See [here](https://ccb.jhu.edu/software/kraken2/index.shtml?t=manual#sample-report-output-format) for a detailed description of the format.
+Less common options for the pipeline, typically set in a config file.
 
-## Bracken
-
-[Bracken](https://ccb.jhu.edu/software/bracken/) is a highly accurate statistical method that computes the abundance of species in DNA sequences from a metagenomics sample. Braken uses the taxonomy labels assigned by Kraken, a highly accurate metagenomics classification algorithm, to estimate the number of reads originating from each species present in a sample.
-
-**Output files:**
-
-* `bracken/`
-  * `*.kraken2.report_bracken_species.txt`:
-  * `*_output_species_abundance.txt`:
-
-## MultiQC
-
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarizing all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
-
-The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability.
-
-For more information about how to use MultiQC reports, see [https://multiqc.info](https://multiqc.info).
-
-**Output files:**
-
-* `multiqc/`
-  * `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  * `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  * `multiqc_plots/`: directory containing static images from the report in various formats.
-
-## Pipeline information
-
-[Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
-
-**Output files:**
-
-* `pipeline_info/`
-  * Reports generated by Nextflow: `execution_report.html`, `execution_timeline.html`, `execution_trace.txt` and `pipeline_dag.dot`/`pipeline_dag.svg`.
-  * Reports generated by the pipeline: `pipeline_report.html`, `pipeline_report.txt` and `software_versions.csv`.
-  * Documentation for interpretation of results in HTML format: `results_description.html`.
+| Parameter | Description | Type | Default | Required | Hidden |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| `help` | Display help text. | `boolean` |  |  | True |
+| `publish_dir_mode` | Method used to save pipeline results to output directory. <details><summary>Help</summary><small>The Nextflow `publishDir` option specifies which intermediate files should be 
+saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for 
+details.</small></details>| `string` | copy |  | True |
+| `email_on_fail` | Email address for completion summary, only when pipeline fails. <details><summary>Help</summary><small>An email address to send a summary email to when the pipeline is completed - 
+ONLY sent if the pipeline does not exit successfully.</small></details>| `string` |  |  | True |
+| `plaintext_email` | Send plain-text email instead of HTML. | `boolean` |  |  | True |
+| `max_multiqc_email_size` | File size limit when attaching MultiQC reports to summary emails. | `string` | 25.MB |  | True |
+| `monochrome_logs` | Do not use coloured log outputs. | `boolean` |  |  | True |
+| `multiqc_config` | Custom config file to supply to MultiQC. | `string` |  |  | True |
+| `tracedir` | Directory to keep pipeline Nextflow logs and reports. | `string` | ${params.outdir}/pipeline_info |  | True |
+| `validate_params` | Boolean whether to validate parameters against the schema at runtime | `boolean` | True |  | True |
+| `show_hidden_params` | Show all params when using `--help` <details><summary>Help</summary><small>By default, parameters set as _hidden_ in the schema are not shown on the command line when a user 
+runs with `--help`. Specifying this option will tell the pipeline to show all parameters.</small></details>| `boolean` |  |  | True |
+| `enable_conda` | Run this workflow with Conda. You can also use '-profile conda' instead of providing this parameter. | `boolean` |  |  | True |
