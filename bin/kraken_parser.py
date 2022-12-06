@@ -76,8 +76,8 @@ def main(args=None):
 
     ## Create list of Bracken species abundance files
     species_abundance_files = sorted(glob.glob('*.tsv'))
-	
-	## Create combined Kraken 2 and Bracken dataframe
+
+    ## Create combined Kraken 2 and Bracken dataframe
     combined_df = files_to_dataframe(kraken_report_files,species_abundance_files)
 
     ## Write output file
