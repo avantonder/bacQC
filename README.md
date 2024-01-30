@@ -65,7 +65,6 @@ Alternatively the samplesheet.csv file created by nf-core/fetchngs can also be u
         -profile <docker/singularity/podman/conda/institute> \
         --input samplesheet.csv \
         --kraken2db minikraken2_v1_8GB \
-        --brackendb minikraken2_v1_8GB \
         --genome_size 4300000 \
         --outdir <OUTDIR>
     ```
@@ -77,7 +76,6 @@ Alternatively the samplesheet.csv file created by nf-core/fetchngs can also be u
         -profile <docker/singularity/podman/conda/institute> \
         --input samplesheet.csv \
         --kraken2db minikraken2_v1_8GB \
-        --brackendb minikraken2_v1_8GB \
         --genome_size 4300000 \
         --kraken_extract \
         --tax_id <TAXON_ID> \
