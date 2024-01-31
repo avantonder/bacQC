@@ -22,9 +22,6 @@ Use the `--input` parameter to specify the location of `samplesheet.csv`. It has
 --input '[path to samplesheet file]'
 ```
 
-```console
---input '[path to samplesheet file]'
-```
 ### Full samplesheet
 
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
