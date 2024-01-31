@@ -10,13 +10,11 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowBacQC.initialise(params, log)
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.kraken2db, params.brackendb]
+def checkPathParamList = [ params.input, params.multiqc_config, params.kraken2db ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
-//if (params.kraken2db) { ch_kraken2db = file(params.kraken2db) } else { exit 1, 'kraken2 database not specified!' }
-//if (params.brackendb) { ch_brackendb = file(params.brackendb) } else { exit 1, 'bracken database not specified!' }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -198,10 +196,8 @@ workflow BACQC {
     //  
     ch_kraken2_multiqc = Channel.empty()
     ch_kraken2db       = Channel.empty()
-    ch_brackendb       = Channel.empty()
     if (!params.skip_kraken2) {
         ch_kraken2db = file(params.kraken2db)
-        ch_brackendb = file(params.brackendb)
         
         KRAKEN2_KRAKEN2 (
                 ch_variants_fastq,
@@ -216,7 +212,7 @@ workflow BACQC {
         //
         BRACKEN_BRACKEN (
                 ch_kraken2_bracken,
-                ch_brackendb
+                ch_kraken2db
             )
         ch_bracken_krakenparse = BRACKEN_BRACKEN.out.reports
         ch_versions            = ch_versions.mix(BRACKEN_BRACKEN.out.versions.first())

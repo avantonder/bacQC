@@ -22,9 +22,6 @@ Use the `--input` parameter to specify the location of `samplesheet.csv`. It has
 --input '[path to samplesheet file]'
 ```
 
-```console
---input '[path to samplesheet file]'
-```
 ### Full samplesheet
 
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
@@ -47,11 +44,10 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 
 ## Kraken 2 database
 
-The pipeline can be provided with a path to a Kraken 2 database which is used, along with Bracken, to assign sequence reads to a particular taxon.  Use the `--kraken2db` and `--brackendb` parameters to specify the location of the Kraken 2 database:
+The pipeline can be provided with a path to a Kraken 2 database which is used, along with Bracken, to assign sequence reads to a particular taxon.  Use the `--kraken2db` parameter to specify the location of the Kraken 2 database:
 
 ```console
 --kraken2db '[path to Kraken 2 database]'
---brackendb '[path to Kraken 2 database]'
 ```
 
 The Kraken 2 and Bracken steps can by skipped by specifying the `--skip_kraken2` parameter.
@@ -73,7 +69,6 @@ nextflow run avantonder/bacQC \
   --input samplesheet.csv \
   -profile singularity \
   --kraken2db path/to/kraken2/dir \
-  --bracken path/to/kraken2/dir/ \
   --genome_size <ESTIMATED GENOME SIZE> \
   --outdir <OUTDIR> \
   -resume
@@ -102,7 +97,7 @@ nextflow pull avantonder/bacQC
 
 It's a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [avantonder/bacQC releases page](https://github.com/avantonder/bacQC/releases) and find the latest version number - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`.
+First, go to the [avantonder/bacQC releases page](https://github.com/avantonder/bacQC/releases) and find the latest version number - numeric only (eg. `1.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.1`.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
 
@@ -118,8 +113,6 @@ Several generic profiles are bundled with the pipeline which instruct the pipeli
 
 > We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
 
-The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
-
 Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
@@ -127,13 +120,10 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 
 * `docker`
   * A generic configuration profile to be used with [Docker](https://docker.com/)
-  * Pulls software from Docker Hub: [`nfcore/bacqc`](https://hub.docker.com/r/nfcore/bacqc/)
 * `singularity`
   * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
-  * Pulls software from Docker Hub: [`nfcore/bacqc`](https://hub.docker.com/r/nfcore/bacqc/)
 * `podman`
   * A generic configuration profile to be used with [Podman](https://podman.io/)
-  * Pulls software from Docker Hub: [`nfcore/bacqc`](https://hub.docker.com/r/nfcore/bacqc/)
 * `conda`
   * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity or Podman.
   * A generic configuration profile to be used with [Conda](https://conda.io/docs/)
@@ -167,10 +157,6 @@ process {
 ```
 
 See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information.
-
-If you are likely to be running `nf-core` pipelines regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition above). You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
-
-If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
 
 ### Running in the background
 
