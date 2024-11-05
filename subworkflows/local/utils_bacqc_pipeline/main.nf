@@ -217,17 +217,12 @@ def toolCitationText() {
             "Visualisation of Bracken results was performed with Krona (Ondov et al. 2011)."
     ].join(' ').trim()
 
-    def text_postprocessing = [
-        "Standardisation of taxonomic profiles was carried out with TAXPASTA (Beber et al. 2023).",
-    ].join(' ').trim()
-
     def citation_text = [
         "Tools used in the workflow included:",
         text_seq_qc,
         text_shortread_qc,
         text_classification,
         text_visualisation,
-        text_postprocessing,
         "Pipeline results statistics were summarised with MultiQC (Ewels et al. 2016)."
     ].join(' ').trim().replaceAll("[,|.] +\\.", ".")
 
