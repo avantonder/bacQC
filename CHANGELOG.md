@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update fastp from version 0.23.2 to version 0.23.4.
 - Update Kraken 2 from version 2.1.2 to version 2.1.3.
 - Update Bracken from version 2.7 to version 2.9.
-- Update MultiQC from version 1.13 to version 1.25.1. Report now includes Bracken outputs instead of Kraken 2 outputs.
+- Update MultiQC from version 1.13 to version 1.25.1. Report now includes Bracken outputs and Kraken 2 outputs.
 
 ## v1.2 - [30/01/24]
 

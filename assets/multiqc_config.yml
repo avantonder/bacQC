@@ -42,14 +42,13 @@ top_modules:
   - "kraken":
       name: "Kraken"
       path_filters:
-        - "*.kraken2.kraken2.report.txt"
+        - "*.kraken2.report.txt"
   - "kraken":
       name: "Bracken"
       anchor: "bracken"
       target: "Bracken"
       doi: "10.7717/peerj-cs.104"
       info: "Estimates species abundances in metagenomics samples by probabilistically re-distributing reads in the taxonomic tree."
-      extra: "ℹ️: plot title will say Kraken2 due to the first step of bracken producing the same output format as Kraken. Abundance information is currently not supported in MultiQC."
       path_filters:
         - "*.kraken2.report_bracken.txt"
 
