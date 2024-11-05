@@ -18,11 +18,11 @@
               "input": {
                   "type": "string",
                   "format": "file-path",
+                  "exists": true,
                   "mimetype": "text/csv",
                   "pattern": "^\\S+\\.csv$",
-                  "schema": "assets/schema_input.json",
                   "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                  "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/bovisanalyzer/usage#samplesheet-input).",
+                  "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
                   "fa_icon": "fas fa-file-csv"
               },
               "outdir": {
@@ -42,95 +42,6 @@
                   "type": "string",
                   "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                   "fa_icon": "fas fa-file-signature"
-              }
-          }
-      },
-      "fastqc_fastp_options": {
-          "title": "FastQC/fastp options",
-          "type": "object",
-          "description": "",
-          "default": "",
-          "properties": {
-              "skip_fastp": {
-                  "type": "boolean",
-                  "description": "Skip the fastp trimming step."
-              },
-              "skip_fastqc": {
-                  "type": "boolean",
-                  "description": "Skip the fastQC step."
-              },
-              "adapter_fasta": {
-                  "type": "string",
-                  "default": "None",
-                  "description": "File in FASTA format containing possible adapters to remove. Accepted formats: *.{fasta,fna,fas,fa}"
-              },
-              "save_trimmed_fail": {
-                  "type": "boolean",
-                  "description": "Specify `true` to save files that failed to pass trimming thresholds ending in *.fail.fastq.gz"
-              },
-              "save_merged": {
-                  "type": "boolean",
-                  "description": "Specify true to save all merged reads to the a file ending in *.merged.fastq.gz"
-              },
-              "extra_fastp_args": {
-                  "type": "string",
-                  "default": "None",
-                  "description": "Extra arguements for fastp. For example, `--trim_front1 15 --trim_front2 15 --trim_tail1 5 --trim_tail2 5{:bash}`"
-              }
-          }
-      },
-      "fastq_scan_options": {
-          "title": "fastq-scan options",
-          "type": "object",
-          "description": "",
-          "default": "",
-          "properties": {
-              "genome_size": {
-                  "type": "integer",
-                  "description": "Specify a genome size to be used by fastq-scan to calculate coverage"
-              }
-          }
-      },
-      "kraken_2_options": {
-          "title": "Kraken 2 options",
-          "type": "object",
-          "description": "",
-          "default": "",
-          "properties": {
-              "skip_kraken2": {
-                  "type": "boolean",
-                  "description": "Skip Kraken 2 and Bracken."
-              },
-              "kraken2db": {
-                  "type": "string",
-                  "default": "None",
-                  "description": "Path to Kraken 2 database"
-              },
-              "save_output_fastqs": {
-                  "type": "boolean",
-                  "description": "Turn on saving of Kraken2-aligned reads"
-              },
-              "save_reads_assignment": {
-                  "type": "boolean",
-                  "default": true,
-                  "description": "Turn on saving of Kraken2 per-read taxonomic assignment file"
-              },
-              "kraken_extract": {
-                  "type": "boolean",
-                  "description": "Extract reads from fastq files based on taxon id"
-              }
-          }
-      },
-      "krona_options": {
-          "title": "Krona options",
-          "type": "object",
-          "description": "",
-          "default": "",
-          "properties": {
-              "kronadb": {
-                  "type": "string",
-                  "default": "None",
-                  "description": "Path to Krona taxonomy file"
               }
           }
       },
@@ -211,7 +122,7 @@
                   "description": "Maximum amount of time that can be requested for any single job.",
                   "default": "240.h",
                   "fa_icon": "far fa-clock",
-                  "pattern": "^(\\d+\\.?\\s*(s|m|h|day)\\s*)+$",
+                  "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$",
                   "hidden": true,
                   "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
               }
@@ -232,8 +143,9 @@
               },
               "version": {
                   "type": "boolean",
-                  "hidden": true,
-                  "description": "Display version and exit."
+                  "description": "Display version and exit.",
+                  "fa_icon": "fas fa-question-circle",
+                  "hidden": true
               },
               "publish_dir_mode": {
                   "type": "string",
@@ -279,33 +191,30 @@
                   "fa_icon": "fas fa-palette",
                   "hidden": true
               },
-              "multiqc_logo": {
+              "hook_url": {
                   "type": "string",
-                  "default": "None",
-                  "hidden": true,
-                  "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file"
+                  "description": "Incoming hook URL for messaging service",
+                  "fa_icon": "fas fa-people-group",
+                  "help_text": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported.",
+                  "hidden": true
               },
               "multiqc_config": {
                   "type": "string",
+                  "format": "file-path",
                   "description": "Custom config file to supply to MultiQC.",
                   "fa_icon": "fas fa-cog",
                   "hidden": true
               },
+              "multiqc_logo": {
+                  "type": "string",
+                  "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
+                  "fa_icon": "fas fa-image",
+                  "hidden": true
+              },
               "multiqc_methods_description": {
                   "type": "string",
-                  "default": "None",
-                  "description": "Custom MultiQC yaml file containing HTML including a methods description."
-              },
-              "hook_url": {
-                  "type": "string",
-                  "default": "None",
-                  "hidden": true,
-                  "description": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported."
-              },
-              "pipelines_testdata_base_path": {
-                  "type": "string",
-                  "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
-                  "description": "Base URL or local path to location of pipeline test dataset files"
+                  "description": "Custom MultiQC yaml file containing HTML including a methods description.",
+                  "fa_icon": "fas fa-cog"
               },
               "validate_params": {
                   "type": "boolean",
@@ -314,20 +223,121 @@
                   "fa_icon": "fas fa-check-square",
                   "hidden": true
               },
+              "validationShowHiddenParams": {
+                  "type": "boolean",
+                  "fa_icon": "far fa-eye-slash",
+                  "description": "Show all params when using `--help`",
+                  "hidden": true,
+                  "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
+              },
               "validationFailUnrecognisedParams": {
                   "type": "boolean",
+                  "fa_icon": "far fa-check-circle",
+                  "description": "Validation of parameters fails when an unrecognised parameter is found.",
                   "hidden": true,
-                  "description": "Validation of parameters fails when an unrecognised parameter is found."
+                  "help_text": "By default, when an unrecognised parameter is found, it returns a warinig."
               },
               "validationLenientMode": {
                   "type": "boolean",
+                  "fa_icon": "far fa-check-circle",
+                  "description": "Validation of parameters in lenient more.",
                   "hidden": true,
-                  "description": "Validation of parameters in lenient more."
+                  "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
               },
-              "validationShowHiddenParams": {
+              "pipelines_testdata_base_path": {
+                  "type": "string",
+                  "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                  "description": "Base URL or local path to location of pipeline test dataset files"
+              }
+          }
+      },
+      "fastqc_fastp_options": {
+          "title": "FastQC/fastp options",
+          "type": "object",
+          "description": "",
+          "default": "",
+          "properties": {
+              "skip_fastqc": {
                   "type": "boolean",
-                  "hidden": true,
-                  "description": "Show all params when using `--help`"
+                  "description": "Skip the fastQC step."
+              },
+              "skip_fastp": {
+                  "type": "boolean",
+                  "description": "Skip the fastp trimming step."
+              },
+              "adapter_fasta": {
+                  "type": "string",
+                  "default": "None",
+                  "description": "File in FASTA format containing possible adapters to remove. Accepted formats: *.{fasta,fna,fas,fa}"
+              },
+              "save_trimmed_fail": {
+                  "type": "boolean",
+                  "description": "Specify `true` to save files that failed to pass trimming thresholds ending in *.fail.fastq.gz"
+              },
+              "save_merged": {
+                  "type": "boolean",
+                  "description": "Specify true to save all merged reads to the a file ending in *.merged.fastq.gz"
+              },
+              "extra_fastp_args": {
+                  "type": "string",
+                  "default": "None",
+                  "description": "Extra arguments for fastp. For example, `--trim_front1 15 --trim_front2 15 --trim_tail1 5 --trim_tail2 5{:bash}`"
+              }
+          }
+      },
+      "fastq_scan_options": {
+          "title": "fastq-scan options",
+          "type": "object",
+          "description": "",
+          "default": "",
+          "properties": {
+              "genome_size": {
+                  "type": "integer",
+                  "default": 2000000,
+                  "description": "Specify a genome size to be used by fastq-scan to calculate coverage"
+              }
+          }
+      },
+      "kraken_2_options": {
+          "title": "Kraken 2 options",
+          "type": "object",
+          "description": "",
+          "default": "",
+          "properties": {
+              "skip_kraken2": {
+                  "type": "boolean",
+                  "description": "Skip Kraken 2 and Bracken."
+              },
+              "kraken2db": {
+                  "type": "string",
+                  "default": "None",
+                  "description": "Path to Kraken 2 database"
+              },
+              "save_output_fastqs": {
+                  "type": "boolean",
+                  "description": "Turn on saving of Kraken2-aligned reads"
+              },
+              "save_reads_assignment": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Turn on saving of Kraken2 per-read taxonomic assignment file"
+              },
+              "kraken_extract": {
+                  "type": "boolean",
+                  "description": "Extract reads from fastq files based on taxon id"
+              }
+          }
+      },
+      "krona_options": {
+          "title": "Krona options",
+          "type": "object",
+          "description": "",
+          "default": "",
+          "properties": {
+              "kronadb": {
+                  "type": "string",
+                  "default": "None",
+                  "description": "Path to Krona taxonomy file"
               }
           }
       }
@@ -335,6 +345,15 @@
   "allOf": [
       {
           "$ref": "#/$defs/input_output_options"
+      },
+      {
+          "$ref": "#/$defs/institutional_config_options"
+      },
+      {
+          "$ref": "#/$defs/max_job_request_options"
+      },
+      {
+          "$ref": "#/$defs/generic_options"
       },
       {
           "$ref": "#/$defs/fastqc_fastp_options"
@@ -347,15 +366,6 @@
       },
       {
           "$ref": "#/$defs/krona_options"
-      },
-      {
-          "$ref": "#/$defs/institutional_config_options"
-      },
-      {
-          "$ref": "#/$defs/max_job_request_options"
-      },
-      {
-          "$ref": "#/$defs/generic_options"
       }
   ]
 }
