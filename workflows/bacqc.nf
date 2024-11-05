@@ -264,7 +264,7 @@ workflow BACQC {
         )
     )
 
-    ch_multiqc_files = ch_multiqc_files.mix( FASTQC_FINAL.out.zip.collect{it[1]}.ifEmpty([]) )
+    //ch_multiqc_files = ch_multiqc_files.mix( FASTQC_FINAL.out.zip.collect{it[1]}.ifEmpty([]) )
    
     if (!params.skip_kraken2) {
         ch_multiqc_files = ch_multiqc_files.mix( BRACKEN_BRACKEN.out.bracken_kraken_style_report.collect{it[1]}.ifEmpty([]) )
