@@ -104,8 +104,6 @@ workflow BACQC {
         params.skip_fastp,
         params.skip_fastqc
     )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.fastqc_raw_zip.collect{it[1]})
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.fastqc_trim_zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQ_TRIM_FASTP_FASTQC.out.versions)
     ch_filtered_reads = FASTQ_TRIM_FASTP_FASTQC.out.reads
 
@@ -166,7 +164,6 @@ workflow BACQC {
             )
         ch_kraken2_bracken             = KRAKEN2_KRAKEN2.out.report
         ch_kraken2_krakenparse         = KRAKEN2_KRAKEN2.out.report
-        ch_kraken2_multiqc             = KRAKEN2_KRAKEN2.out.report
         ch_versions                    = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first().ifEmpty(null))
         //
         // MODULE: Run bracken
@@ -260,9 +257,11 @@ workflow BACQC {
         )
     )
 
-    //ch_multiqc_files = ch_multiqc_files.mix( FASTQC_FINAL.out.zip.collect{it[1]}.ifEmpty([]) )
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.fastqc_raw_zip.collect{it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.fastqc_trim_zip.collect{it[1]})
    
     if (!params.skip_kraken2) {
+        ch_multiqc_files = ch_multiqc_files.mix( KRAKEN2_KRAKEN2.out.report.collect{it[1]}.ifEmpty([]) )
         ch_multiqc_files = ch_multiqc_files.mix( BRACKEN_BRACKEN.out.txt.collect{it[1]}.ifEmpty([]) )
     }
     

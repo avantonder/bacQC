@@ -51,7 +51,7 @@ top_modules:
       info: "Estimates species abundances in metagenomics samples by probabilistically re-distributing reads in the taxonomic tree."
       extra: "ℹ️: plot title will say Kraken2 due to the first step of bracken producing the same output format as Kraken. Abundance information is currently not supported in MultiQC."
       path_filters:
-        - "*.bracken.kraken2.report.txt"
+        - "*.kraken2.report_bracken.txt"
 
 table_columns_placement:
   FastQC (raw reads):
