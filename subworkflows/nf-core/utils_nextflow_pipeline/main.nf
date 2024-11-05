@@ -2,6 +2,10 @@
 // Subworkflow with functionality that may be useful for any Nextflow pipeline
 //
 
+import org.yaml.snakeyaml.Yaml
+import groovy.json.JsonOutput
+import nextflow.extension.FilesEx
+
 /*
 ========================================================================================
     SUBWORKFLOW DEFINITION
