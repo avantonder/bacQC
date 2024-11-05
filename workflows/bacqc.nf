@@ -47,7 +47,7 @@ include { KRAKENTOOLS_EXTRACT                   } from '../modules/local/krakene
 include { FASTQSCAN as FASTQSCAN_RAW                      } from '../modules/nf-core/fastqscan/main'
 include { FASTQSCAN as FASTQSCAN_TRIM                     } from '../modules/nf-core/fastqscan/main'
 include { KRAKEN2_KRAKEN2                                 } from '../modules/nf-core/kraken2/kraken2/main'
-include { BRACKEN_BRACKEN                                 } from '../modules/nf-core/bracken/bracken/main'
+include { BRACKEN_BRACKEN                                 } from '../modules/nf-core/bracken/main'
 include { KRONA_KTIMPORTTAXONOMY                          } from '../modules/nf-core/krona/ktimporttaxonomy/main'
 include { MULTIQC                                         } from '../modules/nf-core/multiqc/main'
 
