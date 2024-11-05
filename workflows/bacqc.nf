@@ -179,8 +179,8 @@ workflow BACQC {
                 ch_kraken2_bracken,
                 ch_kraken2db
             )
-        ch_bracken_krakenparse = BRACKEN_BRACKEN.out.bracken_report
-        ch_bracken_krona       = BRACKEN_BRACKEN.out.bracken_report
+        ch_bracken_krakenparse = BRACKEN_BRACKEN.out.reports
+        ch_bracken_krona       = BRACKEN_BRACKEN.out.reports
         ch_versions            = ch_versions.mix(BRACKEN_BRACKEN.out.versions)
 
         //
