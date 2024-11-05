@@ -12,11 +12,16 @@ include { validateInputSamplesheet } from '../subworkflows/local/utils_bacqc_pip
 include { validateParameters; paramsHelp; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-validation'
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.kraken2db, params.kronadb ]
+def checkPathParamList = [ params.input, params.multiqc_config, params.kraken2db, params.kronadb,
+                           params.multiqc_logo, params.multiqc_methods_description ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+if ( params.input ) {
+    ch_input = file(params.input, checkIfExists: true)
+} else {
+    error("Input samplesheet not specified")
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
