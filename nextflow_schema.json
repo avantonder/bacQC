@@ -268,19 +268,19 @@
   "properties": {
     "genome_size": {
       "type": "string",
-      "default": null
+      "default": "None"
     },
     "kraken2db": {
       "type": "string",
-      "default": null
+      "default": "None"
     },
     "kronadb": {
       "type": "string",
-      "default": null
+      "default": "None"
     },
     "adapter_fasta": {
       "type": "string",
-      "default": null
+      "default": "None"
     },
     "save_trimmed_fail": {
       "type": "string",
@@ -300,7 +300,7 @@
     },
     "extra_fastp_args": {
       "type": "string",
-      "default": null
+      "default": "None"
     },
     "skip_kraken2": {
       "type": "string",
