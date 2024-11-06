@@ -52,6 +52,14 @@ The pipeline can be provided with a path to a Kraken 2 database which is used, a
 
 The Kraken 2 and Bracken steps can by skipped by specifying the `--skip_kraken2` parameter.
 
+## Krona taxonomy file
+
+The pipeline can be provided with a path to a Krona taxonomy file which creates HTML visualizations of the Bracken results. Use the `--kronadb` parameter to specify the location of the Krona taxonomy file:
+
+```console
+--kronadb '[path to Krona taxonomy file]'
+```
+
 ## Genome size
 
 The pipeline can be provided with a genome size which will be used by fastq-scan to calculate an approximate read coverage.  Use the `--genome size` parameter to specify the genome size of the species being analysed:
@@ -69,6 +77,7 @@ nextflow run avantonder/bacQC \
   --input samplesheet.csv \
   -profile singularity \
   --kraken2db path/to/kraken2/dir \
+  --kronadb path/to/kronataxonomy \
   --genome_size <ESTIMATED GENOME SIZE> \
   --outdir <OUTDIR> \
   -resume
