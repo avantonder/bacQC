@@ -1,29 +1,27 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    VALIDATE INPUTS
+    IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
-
-// Validate input parameters
-WorkflowBacQC.initialise(params, log)
+include { paramsSummaryMap         } from 'plugin/nf-validation'
+include { paramsSummaryMultiqc     } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText   } from '../subworkflows/local/utils_bacqc_pipeline'
+include { validateInputSamplesheet } from '../subworkflows/local/utils_bacqc_pipeline'
+include { validateParameters; paramsHelp; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-validation'
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.kraken2db ]
+def checkPathParamList = [ params.input, params.multiqc_config, params.kraken2db, params.kronadb,
+                           params.multiqc_logo, params.multiqc_methods_description ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    CONFIG FILES
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yml",       checkIfExists: true)
-ch_multiqc_custom_config = params.multiqc_config ? file(params.multiqc_config) : []
+if ( params.input ) {
+    ch_input = file(params.input, checkIfExists: true)
+} else {
+    error("Input samplesheet not specified")
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,9 +40,6 @@ include { READSTATS_PARSE                       } from '../modules/local/readsta
 include { KRAKENPARSE                           } from '../modules/local/krakenparse'
 include { KRAKENTOOLS_EXTRACT                   } from '../modules/local/krakenextract'
 
-include { INPUT_CHECK                           } from '../subworkflows/local/input_check'
-include { FASTQC_FASTP                          } from '../subworkflows/local/fastqc_fastp'
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -54,47 +49,40 @@ include { FASTQC_FASTP                          } from '../subworkflows/local/fa
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQSCAN as FASTQSCAN_RAW                      } from '../modules/nf-core/modules/fastqscan/main'
-include { FASTQSCAN as FASTQSCAN_TRIM                     } from '../modules/nf-core/modules/fastqscan/main'
-include { KRAKEN2_KRAKEN2                                 } from '../modules/nf-core/modules/kraken2/kraken2/main'
-include { BRACKEN_BRACKEN                                 } from '../modules/nf-core/modules/bracken/bracken/main'
+include { FASTQSCAN as FASTQSCAN_RAW                      } from '../modules/nf-core/fastqscan/main'
+include { FASTQSCAN as FASTQSCAN_TRIM                     } from '../modules/nf-core/fastqscan/main'
+include { KRAKEN2_KRAKEN2                                 } from '../modules/nf-core/kraken2/kraken2/main'
+include { BRACKEN_BRACKEN                                 } from '../modules/nf-core/bracken/main'
+include { KRONA_KTIMPORTTAXONOMY                          } from '../modules/nf-core/krona/ktimporttaxonomy/main'
+include { MULTIQC                                         } from '../modules/nf-core/multiqc/main'
 
-include { MULTIQC                                         } from '../modules/nf-core/modules/multiqc/main'
-include { MULTIQC_TSV_FROM_LIST as MULTIQC_TSV_FAIL_READS } from '../modules/local/multiqc_tsv_from_list'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                     } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main' 
-
+include { FASTQ_TRIM_FASTP_FASTQC     } from '../subworkflows/nf-core/fastq_trim_fastp_fastqc/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// Info required for completion email and summary
-def multiqc_report = []
-def fail_mapped_reads = [:]
-
 workflow BACQC {
 
-    ch_versions = Channel.empty()
+    take:
+    ch_samplesheet // channel: samplesheet read in from --input
 
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-    INPUT_CHECK (
-        ch_input
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    main:
+    
+    ch_versions = Channel.empty()
+    ch_multiqc_files = Channel.empty()
 
     //
     // MODULE: Run fastq-scan
     //
     FASTQSCAN_RAW (
-        INPUT_CHECK.out.reads,
+        ch_samplesheet,
         params.genome_size
     )
     ch_fastqscanraw_fastqscanparse = FASTQSCAN_RAW.out.json
     ch_fastqscanraw_readstats      = FASTQSCAN_RAW.out.json
-    ch_versions                    = ch_versions.mix(FASTQSCAN_RAW.out.versions.first())
+    ch_versions                    = ch_versions.mix(FASTQSCAN_RAW.out.versions)
 
     //
     // MODULE: Run fastqscanparse
@@ -102,65 +90,32 @@ workflow BACQC {
     FASTQSCANPARSE_RAW (
         ch_fastqscanraw_fastqscanparse.collect{it[1]}.ifEmpty([])
     )
-    ch_versions = ch_versions.mix(FASTQSCANPARSE_RAW.out.versions.first())
+    ch_versions = ch_versions.mix(FASTQSCANPARSE_RAW.out.versions)
 
     //
-    // SUBWORKFLOW: Read QC and trim adapters
+    // MODULE: FASTQ_TRIM_FASTP_FASTQC
     //
-    FASTQC_FASTP (
-        INPUT_CHECK.out.reads,
+
+    FASTQ_TRIM_FASTP_FASTQC (
+        ch_samplesheet,
+        params.adapter_fasta ?: [],
         params.save_trimmed_fail,
-        false
+        params.save_merged,
+        params.skip_fastp,
+        params.skip_fastqc
     )
-    ch_variants_fastq = FASTQC_FASTP.out.reads
-    ch_versions = ch_versions.mix(FASTQC_FASTP.out.versions)
-
-    //
-    // Filter empty FastQ files after adapter trimming
-    //
-    ch_fail_reads_multiqc = Channel.empty()
-    if (!params.skip_fastp) {
-        ch_variants_fastq
-            .join(FASTQC_FASTP.out.trim_json)
-            .map {
-                meta, reads, json ->
-                    pass = WorkflowBacQC.getFastpReadsAfterFiltering(json) > 0
-                    [ meta, reads, json, pass ]
-            }
-            .set { ch_pass_fail_reads }
-
-        ch_pass_fail_reads
-            .map { meta, reads, json, pass -> if (pass) [ meta, reads ] }
-            .set { ch_variants_fastq }
-
-        ch_pass_fail_reads
-            .map {
-                meta, reads, json, pass ->
-                if (!pass) {
-                    fail_mapped_reads[meta.id] = 0
-                    num_reads = WorkflowBacQC.getFastpReadsBeforeFiltering(json)
-                    return [ "$meta.id\t$num_reads" ]
-                }
-            }
-            .set { ch_pass_fail_reads }
-
-        MULTIQC_TSV_FAIL_READS (
-            ch_pass_fail_reads.collect(),
-            ['Sample', 'Reads before trimming'],
-            'fail_mapped_reads'
-        )
-        .set { ch_fail_reads_multiqc }
-    }
+    ch_versions = ch_versions.mix(FASTQ_TRIM_FASTP_FASTQC.out.versions)
+    ch_filtered_reads = FASTQ_TRIM_FASTP_FASTQC.out.reads
 
     //
     // MODULE: Run fastq-scan
     //
     FASTQSCAN_TRIM (
-        ch_variants_fastq,
+        ch_filtered_reads,
         params.genome_size
     )
     ch_fastqscantrim_fastqscanparse = FASTQSCAN_TRIM.out.json
-    ch_versions                     = ch_versions.mix(FASTQSCAN_TRIM.out.versions.first())
+    ch_versions                     = ch_versions.mix(FASTQSCAN_TRIM.out.versions)
 
     //
     // MODULE: Run fastqscanparse
@@ -168,7 +123,7 @@ workflow BACQC {
     FASTQSCANPARSE_TRIM (
             ch_fastqscantrim_fastqscanparse.collect{it[1]}.ifEmpty([])
     )
-    ch_versions = ch_versions.mix(FASTQSCANPARSE_TRIM.out.versions.first())
+    ch_versions = ch_versions.mix(FASTQSCANPARSE_TRIM.out.versions)
     
     //
     // MODULE: Calculate read stats
@@ -181,7 +136,7 @@ workflow BACQC {
         ch_readstats
     )
     ch_readstats_readstatsparse = READ_STATS.out.csv
-    ch_versions                 = ch_versions.mix(READ_STATS.out.versions.first())
+    ch_versions                 = ch_versions.mix(READ_STATS.out.versions)
 
     //
     // MODULE: Summarise read stats outputs
@@ -189,23 +144,26 @@ workflow BACQC {
     READSTATS_PARSE (
         ch_readstats_readstatsparse.collect{it[1]}.ifEmpty([])
     )
-    ch_versions = ch_versions.mix(READSTATS_PARSE.out.versions.first())
+    ch_versions = ch_versions.mix(READSTATS_PARSE.out.versions)
     
     //
     // MODULE: Run kraken2
     //  
     ch_kraken2_multiqc = Channel.empty()
     ch_kraken2db       = Channel.empty()
+    ch_kronadb         = Channel.empty()
     if (!params.skip_kraken2) {
         ch_kraken2db = file(params.kraken2db)
+        ch_kronadb   = file(params.kronadb)
         
         KRAKEN2_KRAKEN2 (
-                ch_variants_fastq,
-                ch_kraken2db
+                ch_filtered_reads,
+                ch_kraken2db,
+                params.save_output_fastqs,
+                params.save_reads_assignment
             )
-        ch_kraken2_bracken             = KRAKEN2_KRAKEN2.out.txt
-        ch_kraken2_krakenparse         = KRAKEN2_KRAKEN2.out.txt
-        ch_kraken2_multiqc             = KRAKEN2_KRAKEN2.out.txt
+        ch_kraken2_bracken             = KRAKEN2_KRAKEN2.out.report
+        ch_kraken2_krakenparse         = KRAKEN2_KRAKEN2.out.report
         ch_versions                    = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first().ifEmpty(null))
         //
         // MODULE: Run bracken
@@ -215,7 +173,8 @@ workflow BACQC {
                 ch_kraken2db
             )
         ch_bracken_krakenparse = BRACKEN_BRACKEN.out.reports
-        ch_versions            = ch_versions.mix(BRACKEN_BRACKEN.out.versions.first())
+        ch_bracken_krona       = BRACKEN_BRACKEN.out.reports
+        ch_versions            = ch_versions.mix(BRACKEN_BRACKEN.out.versions)
 
         //
         // MODULE: Run krakenparse
@@ -224,14 +183,23 @@ workflow BACQC {
                 ch_kraken2_krakenparse.collect{it[1]}.ifEmpty([]),
                 ch_bracken_krakenparse.collect{it[1]}.ifEmpty([])
             )
-        ch_versions = ch_versions.mix(KRAKENPARSE.out.versions.first())
+        ch_versions = ch_versions.mix(KRAKENPARSE.out.versions)
+
+        //
+        // MODULE: Run krona
+        //
+        KRONA_KTIMPORTTAXONOMY (
+                ch_bracken_krona,
+                ch_kronadb
+            )
+        ch_versions = ch_versions.mix(KRONA_KTIMPORTTAXONOMY.out.versions)
     }
     
     //
     // MODULE: Run krakentools extract
     // 
     if (params.kraken_extract) {
-        ch_variants_fastq
+        ch_filtered_reads
             .join(KRAKEN2_KRAKEN2.out.output)
             .join(KRAKEN2_KRAKEN2.out.txt)
             .map {
@@ -247,43 +215,69 @@ workflow BACQC {
     }
     
     //
-    // MODULE: Collate software versions
+    // Collate and save software versions
     //
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    )
+    softwareVersionsToYAML(ch_versions)
+        .collectFile(
+            storeDir: "${params.outdir}/pipeline_info",
+            name: 'nf_core_pipeline_software_mqc_versions.yml',
+            sort: true,
+            newLine: true
+        ).set { ch_collated_versions }
 
     //
     // MODULE: MultiQC
     //
-    workflow_summary    = WorkflowBacQC.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
+    ch_multiqc_config        = Channel.fromPath(
+        "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+    ch_multiqc_custom_config = params.multiqc_config ?
+        Channel.fromPath(params.multiqc_config, checkIfExists: true) :
+        Channel.empty()
+    ch_multiqc_logo          = params.multiqc_logo ?
+        Channel.fromPath(params.multiqc_logo, checkIfExists: true) :
+        Channel.fromPath("${workflow.projectDir}/docs/images/bacqc_logo.png", checkIfExists: true)
 
-    MULTIQC (
-        ch_multiqc_config,
-        ch_multiqc_custom_config,
-        CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect(),
-        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'),
-        ch_fail_reads_multiqc.ifEmpty([]),
-        FASTQC_FASTP.out.fastqc_raw_zip.collect{it[1]}.ifEmpty([]),
-        FASTQC_FASTP.out.trim_json.collect{it[1]}.ifEmpty([]),
-        ch_kraken2_multiqc.collect{it[1]}.ifEmpty([])
+    summary_params      = paramsSummaryMap(
+        workflow, parameters_schema: "nextflow_schema.json")
+    ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
+
+    ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
+        file(params.multiqc_methods_description, checkIfExists: true) :
+        file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+    ch_methods_description                = Channel.value(
+        methodsDescriptionText(ch_multiqc_custom_methods_description))
+
+    ch_multiqc_files = ch_multiqc_files.mix(
+        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+    ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
+    ch_multiqc_files = ch_multiqc_files.mix(
+        ch_methods_description.collectFile(
+            name: 'methods_description_mqc.yaml',
+            sort: true
+        )
     )
-    multiqc_report = MULTIQC.out.report.toList()
-    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
-}
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    COMPLETION EMAIL AND SUMMARY
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-workflow.onComplete {
-    if (params.email || params.email_on_fail) {
-        NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report, fail_mapped_reads)
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.fastqc_raw_zip.collect{it[1]})
+    //ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.fastqc_trim_zip.collect{it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.trim_json.collect{it[1]})
+   
+    if (!params.skip_kraken2) {
+        ch_multiqc_files = ch_multiqc_files.mix( KRAKEN2_KRAKEN2.out.report.collect{it[1]}.ifEmpty([]) )
+        ch_multiqc_files = ch_multiqc_files.mix( BRACKEN_BRACKEN.out.txt.collect{it[1]}.ifEmpty([]) )
     }
-    NfcoreTemplate.summary(workflow, params, log)
+    
+    MULTIQC (
+        ch_multiqc_files.collect(),
+        ch_multiqc_config.toList(),
+        ch_multiqc_custom_config.toList(),
+        ch_multiqc_logo.toList(),
+        [],
+        []
+    )
+
+    emit:
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
 
 /*

@@ -17,6 +17,7 @@ and processes data using the following steps:
 - [`Assign taxonomy to reads`](#assign-taxonomy-to-reads)
 - [`Re-estimate taxonomy`](#re-estimate-taxonomy)
 - [`Extract reads`](#extract-reads)
+- [`Visualize taxonomy`](#visualize-taxonomy)
 - [`Species composition`](#calculate-species-composition)
 - [`Sequencing statistics`](#sequencing-statistics)
 - [`MultiQC`](#multiqc) 
@@ -112,6 +113,18 @@ and processes data using the following steps:
 </details>
 
 [KrakenTools](https://github.com/jenniferlu717/KrakenTools) is a suite of scripts to be used for post-analysis of Kraken/KrakenUniq/Kraken2/Bracken results.
+
+### Visualize taxonomy
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `krona/`
+  - `*.html`: HTML files containing taxonomy visualizations
+
+</details>
+
+[Krona](https://pubmed.ncbi.nlm.nih.gov/21961884/) creates interactive metagenomic visualizations in a Web browser.
 
 ### Calculate species composition
 
