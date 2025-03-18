@@ -18,10 +18,10 @@
 2. Calculate fastq summary statistics ([`fastq-scan`](https://github.com/rpetit3/fastq-scan))
 3. Trim reads for quality and adapter sequence ([`fastp`](https://github.com/OpenGene/fastp))
 4. Assign taxonomic labels to sequence reads ([`Kraken 2`](https://ccb.jhu.edu/software/kraken2/))
-5. Re-estimate taxonomic abundance of samples analyzed by kraken 2([`Bracken`](https://ccb.jhu.edu/software/bracken/))
+5. Re-estimate taxonomic abundance of samples analyzed by Kraken 2 ([`Bracken`](https://ccb.jhu.edu/software/bracken/))
 6. Visualize Bracken reports with ([`Krona`](https://github.com/marbl/Krona))
 7. Extract reads using Taxon ID ([`KrakenTools`](https://github.com/jenniferlu717/KrakenTools))) (OPTIONAL)
-8. Present QC and visualisation for raw read, trimmed read and kraken2/Bracken results ([`MultiQC`](http://multiqc.info/))
+8. Present QC and visualisation for raw read, trimmed read and Kraken2/Bracken results ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
