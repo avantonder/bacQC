@@ -8,7 +8,7 @@ This document describes the output produced by the `bacQC` pipeline. The directo
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- [FastQC](#fastqc) - Raw read QC
+- [`FastQC`](#fastqc) - Raw read QC
 - [`fastq-scan`](#fastq-scan) - Fastq summary statistics
 - [`fastp`](#fastp) - Quality trimming and filtering
 - [`Kraken 2`](#kraken-2) - Assign taxonomy to reads
@@ -17,8 +17,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [`Krona`](#krona) - Visualize taxonomy
 - [`kraken_parser.py`](#kraken-parser) - Species composition
 - [`read_stats_parser.py`](#read-stats-parser) - Sequencing statistics
-- [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
-- [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
+- [`MultiQC`](#multiqc) - Aggregate report describing results and QC from the whole pipeline
+- [`Pipeline information`](#pipeline-information) - Report metrics generated during the workflow execution
 
 ![](../assets/bacQC_metromap.png)
 
