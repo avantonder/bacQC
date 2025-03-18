@@ -2,26 +2,25 @@
 
 ## Introduction
 
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
-
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
+This document describes the output produced by the `bacQC` pipeline. The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
 
 ## Pipeline overview
 
-The pipeline is built using [Nextflow](https://www.nextflow.io/)
-and processes data using the following steps:
+The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- [`FastQC`](#fastqc)
-- [`Fastq summary statistics`](#fastq-summary-statistics)
-- [`Read trimming`](#read-trimming)
-- [`Assign taxonomy to reads`](#assign-taxonomy-to-reads)
-- [`Re-estimate taxonomy`](#re-estimate-taxonomy)
-- [`Extract reads`](#extract-reads)
-- [`Visualize taxonomy`](#visualize-taxonomy)
-- [`Species composition`](#calculate-species-composition)
-- [`Sequencing statistics`](#sequencing-statistics)
-- [`MultiQC`](#multiqc) 
-- [`Pipeline information`](#pipeline-information)
+- [FastQC](#fastqc) - Raw read QC
+- [`fastq-scan`](#fastq-scan) - Fastq summary statistics
+- [`fastp`](#fastp) - Quality trimming and filtering
+- [`Kraken 2`](#kraken-2) - Assign taxonomy to reads
+- [`Bracken`](#bracken) - Re-estimate taxonomy
+- [`Kraken-tools`](#kraken-tools) - Extract reads
+- [`Krona`](#krona) - Visualize taxonomy
+- [`kraken_parser.py`](#kraken-parser) - Species composition
+- [`read_stats_parser.py`](#read-stats-parser) - Sequencing statistics
+- [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
+- [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
+
+![](../assets/bacQC_metromap.png)
 
 ### FastQC
 
@@ -44,7 +43,7 @@ and processes data using the following steps:
 
 > **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
 
-### Fastq summary statistics
+### fastq-scan
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -60,7 +59,7 @@ and processes data using the following steps:
 
 [fastq-scan](https://github.com/rpetit3/fastq-scan) is a tool for generating FASTQ summary statistics in JSON format.
 
-### Read Trimming
+### fastp
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -76,7 +75,7 @@ and processes data using the following steps:
 
 ![MultiQC - fastp trimmed reads plot](images/multiqc_fastp.png)
 
-### Assign taxonomy to reads
+### Kraken 2
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -90,7 +89,7 @@ and processes data using the following steps:
 
 ![MultiQC - Kraken 2 classification plot](images/mqc_kraken2_plot.png)
 
-### Re-estimate taxonomy
+### Bracken
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -102,7 +101,7 @@ and processes data using the following steps:
 
 [Bracken](https://ccb.jhu.edu/software/bracken/) (Bayesian Reestimation of Abundance with KrakEN) is a highly accurate statistical method that computes the abundance of species in DNA sequences from a metagenomics sample.
 
-### Extract reads
+### Kraken-tools
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -114,7 +113,7 @@ and processes data using the following steps:
 
 [KrakenTools](https://github.com/jenniferlu717/KrakenTools) is a suite of scripts to be used for post-analysis of Kraken/KrakenUniq/Kraken2/Bracken results.
 
-### Visualize taxonomy
+### Krona
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -126,7 +125,7 @@ and processes data using the following steps:
 
 [Krona](https://pubmed.ncbi.nlm.nih.gov/21961884/) creates interactive metagenomic visualizations in a Web browser.
 
-### Calculate species composition
+### kraken_parser.py
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -138,7 +137,7 @@ and processes data using the following steps:
 
 [kraken_parser.py](https://github.com/avantonder/bacQC/blob/main/bin/kraken_parser.py) is a script used to summarise the results of Kraken 2 and Bracken for all samples.
 
-## Sequencing statistics
+## read_stats_parser.py
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -152,6 +151,8 @@ and processes data using the following steps:
 
 ### MultiQC
 
+[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
+
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -162,11 +163,18 @@ and processes data using the following steps:
 
 </details>
 
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
-
 Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
 
-![MultiQC - overall statistics](images/multiqc_general_stats.png)
+All tools in bacQC supported by MultiQC will have a dedicated section showing summary statistics of each tool based on information stored in log files.
+
+You can expect in the MultiQC reports either sections and/or general stats columns for the following tools:
+
+- fastqc
+- porechop
+- filtlong
+- nanoq
+- quast
+- bakta
 
 ### Pipeline information
 
@@ -177,6 +185,7 @@ Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQ
   - Reports generated by Nextflow: `execution_report.html`, `execution_timeline.html`, `execution_trace.txt` and `pipeline_dag.dot`/`pipeline_dag.svg`.
   - Reports generated by the pipeline: `pipeline_report.html`, `pipeline_report.txt` and `software_versions.yml`. The `pipeline_report*` files will only be present if the `--email` / `--email_on_fail` parameter's are used when running the pipeline.
   - Reformatted samplesheet files used as input to the pipeline: `samplesheet.valid.csv`.
+  - Parameters used by the pipeline run: `params.json`.
 
 </details>
 
