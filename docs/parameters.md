@@ -1,6 +1,6 @@
 # avantonder/bacQC pipeline parameters
 
-Pipeline for running QC on bacterial sequence data
+**bacQC** is a bioinformatics analysis pipeline for trimming Illumina reads with `fastp`, assessing read quality with `fastQC` and species composition with `Kraken2` and `Bracken`.  It also allows reads to be extracted using a Taxon id (optional).
 
 ## Input/output options
 
