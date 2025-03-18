@@ -2,7 +2,7 @@
 
 # ![avantonder/bacQC](assets/bacQC_metromap.png)
 
-[![Cite with Zenodo](https://zenodo.org/badge/681230079.svg)](https://doi.org/10.5281/zenodo.15040673)
+[![Cite with Zenodo](https://zenodo.org/badge/339381969.svg)](https://doi.org/10.5281/zenodo.15046661)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
@@ -20,7 +20,7 @@
 4. Assign taxonomic labels to sequence reads ([`Kraken 2`](https://ccb.jhu.edu/software/kraken2/))
 5. Re-estimate taxonomic abundance of samples analyzed by Kraken 2 ([`Bracken`](https://ccb.jhu.edu/software/bracken/))
 6. Visualize Bracken reports with ([`Krona`](https://github.com/marbl/Krona))
-7. Extract reads using Taxon ID ([`KrakenTools`](https://github.com/jenniferlu717/KrakenTools))) (OPTIONAL)
+7. Extract reads using Taxon ID ([`KrakenTools`](https://github.com/jenniferlu717/KrakenTools)) (OPTIONAL)
 8. Present QC and visualisation for raw read, trimmed read and Kraken2/Bracken results ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
@@ -119,6 +119,6 @@ If you have any issues, questions or suggestions for improving bovisanalyzer, pl
 
 ## Citations
 
-If you use the avantonder/bacQC pipeline, please cite it using the following doi: [10.5281/zenodo.15040673](https://doi.org/10.5281/zenodo.15040673)
+If you use the avantonder/bacQC pipeline, please cite it using the following doi: [10.5281/zenodo.15046661](https://doi.org/10.5281/zenodo.15046661)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
