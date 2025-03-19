@@ -170,11 +170,9 @@ All tools in bacQC supported by MultiQC will have a dedicated section showing su
 You can expect in the MultiQC reports either sections and/or general stats columns for the following tools:
 
 - fastqc
-- porechop
-- filtlong
-- nanoq
-- quast
-- bakta
+- fastp
+- kraken
+- bracken
 
 ### Pipeline information
 
