@@ -11,12 +11,12 @@ LOG_FILE = "clone_log.json"          # Output file
 
 # --- Load GitHub Token Securely ---
 # Method 1: GitHub Actions Secret (priority)
-token = os.environ.get("GH_TOKEN")
+token = os.environ.get("GITHUB_TOKEN")
 
 # Method 2: Fallback to .env file (for local testing)
 if not token:
     load_dotenv()  # Load from .env file
-    token = os.environ.get("GH_TOKEN")
+    token = os.environ.get("GITHUB_TOKEN")
 
 if not token:
     raise ValueError(
